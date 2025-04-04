@@ -1,0 +1,88 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Shopify App Configuration{% endblock %}
+
+{% block body %}
+    <div style="padding: 20px; max-width: 800px; margin: 0 auto;">
+        <h1>Shopify App Configuration</h1>
+
+        {% for message in app.flashes('success') %}
+            <div class="Polaris-Banner Polaris-Banner--statusSuccess" role="status">
+                <p>{{ message }}</p>
+            </div>
+        {% endfor %}
+
+        <form method="post" class="Polaris-Card">
+            <div class="Polaris-Card__Section">
+                <h2 class="Polaris-Heading">Connection Settings</h2>
+                <p>Configure the connection details for your Shopify app.</p>
+
+                <div class="Polaris-FormLayout">
+
+                    {# Protocol #}
+                    <div class="Polaris-FormLayout__Item">
+                        <div class="Polaris-Labelled">
+                            <label class="Polaris-Labelled__Label" for="protocol">Protocol</label>
+                            <select id="protocol" name="protocol" class="Polaris-Select" required>
+                                <option value="FTP" {% if config.protocol == 'FTP' %}selected{% endif %}>FTP</option>
+                                <option value="SFTP" {% if config.protocol == 'SFTP' %}selected{% endif %}>SFTP</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {# Server URL #}
+                    <div class="Polaris-FormLayout__Item">
+                        <div class="Polaris-Labelled">
+                            <label class="Polaris-Labelled__Label" for="server_url">Server URL</label>
+                            <input type="text" id="server_url" name="server_url" value="{{ config.serverUrl ?? '' }}" class="Polaris-TextField" required>
+                        </div>
+                    </div>
+
+                    {# Port #}
+                    <div class="Polaris-FormLayout__Item">
+                        <div class="Polaris-Labelled">
+                            <label class="Polaris-Labelled__Label" for="port">Port</label>
+                            <input type="number" id="port" name="port" value="{{ config.port ?? 22 }}" class="Polaris-TextField" required>
+                        </div>
+                    </div>
+
+                    {# Username #}
+                    <div class="Polaris-FormLayout__Item">
+                        <div class="Polaris-Labelled">
+                            <label class="Polaris-Labelled__Label" for="username">Username</label>
+                            <input type="text" id="username" name="username" value="{{ config.username ?? '' }}" class="Polaris-TextField" required>
+                        </div>
+                    </div>
+
+                    {# Root Directory #}
+                    <div class="Polaris-FormLayout__Item">
+                        <div class="Polaris-Labelled">
+                            <label class="Polaris-Labelled__Label" for="root_directory">Root Directory</label>
+                            <input type="text" id="root_directory" name="root_directory" value="{{ config.rootDirectory ?? '' }}" class="Polaris-TextField" required>
+                        </div>
+                    </div>
+
+                    {# Private Key Content #}
+                    <div class="Polaris-FormLayout__Item">
+                        <div class="Polaris-Labelled">
+                            <label class="Polaris-Labelled__Label" for="private_key_content">Private Key Content</label>
+                            <textarea id="private_key_content" name="private_key_content" class="Polaris-TextField" rows="5" required>{{ config.privateKeyContent ?? '' }}</textarea>
+                        </div>
+                    </div>
+
+                    {# Key Passphrase #}
+                    <div class="Polaris-FormLayout__Item">
+                        <div class="Polaris-Labelled">
+                            <label class="Polaris-Labelled__Label" for="key_passphrase">Key Passphrase</label>
+                            <input type="password" id="key_passphrase" name="key_passphrase" value="{{ config.keyPassphrase ?? '' }}" class="Polaris-TextField" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="Polaris-Card__Section">
+                <button type="submit" class="Polaris-Button Polaris-Button--primary">Save Configuration</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Shopify App{% endblock %}</title>
+    {% block stylesheets %}
+        <link rel="stylesheet" href="https://unpkg.com/@shopify/polaris@10.0.0/build/esm/styles.css" />
+    {% endblock %}
+
+    {% block javascripts %}
+        <!-- Dodaj Shopify App Bridge -->
+        <script src="https://unpkg.com/@shopify/app-bridge@3"></script>
+        <script src="https://unpkg.com/@shopify/app-bridge-utils@3"></script>
+        <script>
+            // Inicjalizacja App Bridge
+            var AppBridge = window['app-bridge'];
+            var createApp = AppBridge.createApp;
+            var app = createApp({
+                apiKey: '{{ shopify_client_id }}', // Przekazujemy API Key (Client ID)
+                host: '{{ host }}', // Host przekazywany przez Shopify w URL
+                shop: '{{ shop }}', // Domena sklepu
+            });
+        </script>
+    {% endblock %}
+</head>
+<body>
+{% block body %}{% endblock %}
+</body>
+</html>
