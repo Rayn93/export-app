@@ -17,6 +17,13 @@ final class ShopifyConfigController extends AbstractController
     {
         $shop = $request->query->get('shop');
         $host = $request->query->get('host');
+        $hmac = $request->query->get('hmac');
+        $query = $request->query->all();
+
+//        Verify if it is request from Shopify
+        if (!$this->verifyHmac($query, $hmac)) {
+            return new Response('Invalid HMAC signature', 403);
+        }
 
         if (!$shop) {
             return new Response('Missing shop parameter', 400);
@@ -51,5 +58,21 @@ final class ShopifyConfigController extends AbstractController
             'shopify_client_id' => $this->getParameter('shopify_client_id'),
             'config' => $shopifyAppConfig,
         ]);
+    }
+
+    private function verifyHmac(array $query, ?string $hmac): bool
+    {
+        if (!$hmac) {
+            return false;
+        }
+
+        $params = $query;
+        unset($params['hmac']);
+        ksort($params);
+        $queryString = http_build_query($params);
+        $clientSecret = $this->getParameter('shopify_client_secret');
+        $calculatedHmac = hash_hmac('sha256', $queryString, $clientSecret);
+
+        return hash_equals($hmac, $calculatedHmac);
     }
 }

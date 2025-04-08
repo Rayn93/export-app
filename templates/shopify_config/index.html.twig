@@ -24,8 +24,8 @@
                         <div class="Polaris-Labelled">
                             <label class="Polaris-Labelled__Label" for="protocol">Protocol</label>
                             <select id="protocol" name="protocol" class="Polaris-Select" required>
-                                <option value="FTP" {% if config.protocol == 'FTP' %}selected{% endif %}>FTP</option>
-                                <option value="SFTP" {% if config.protocol == 'SFTP' %}selected{% endif %}>SFTP</option>
+                                <option value="FTP" {% if config.protocol.value == 'FTP' %}selected{% endif %}>FTP</option>
+                                <option value="SFTP" {% if config.protocol.value == 'SFTP' %}selected{% endif %}>SFTP</option>
                             </select>
                         </div>
                     </div>
