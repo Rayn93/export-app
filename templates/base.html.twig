@@ -16,9 +16,9 @@
             var AppBridge = window['app-bridge'];
             var createApp = AppBridge.createApp;
             var app = createApp({
-                apiKey: '{{ shopify_client_id }}', // Przekazujemy API Key (Client ID)
-                host: '{{ host }}', // Host przekazywany przez Shopify w URL
-                shop: '{{ shop }}', // Domena sklepu
+                apiKey: '{{ shopify_client_id }}',
+                host: '{{ host }}',
+                shop: '{{ shop }}',
             });
         </script>
     {% endblock %}

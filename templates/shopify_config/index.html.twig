@@ -7,7 +7,12 @@
         <h1>Shopify App Configuration</h1>
 
         {% for message in app.flashes('success') %}
-            <div class="Polaris-Banner Polaris-Banner--statusSuccess" role="status">
+            <div class="Polaris-Banner Polaris-Banner--statusSuccess" role="alert">
+                <p>{{ message }}</p>
+            </div>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div class="Polaris-Banner Polaris-Banner--statusCritical" role="alert">
                 <p>{{ message }}</p>
             </div>
         {% endfor %}
@@ -83,6 +88,11 @@
             <div class="Polaris-Card__Section">
                 <button type="submit" class="Polaris-Button Polaris-Button--primary">Save Configuration</button>
             </div>
+        </form>
+
+        {# Dodaj przycisk eksportu #}
+        <form action="{{ path('shopify_export_products', app.request.query.all) }}" method="post">
+            <button type="submit" class="Polaris-Button Polaris-Button--primary">Export Products to CSV</button>
         </form>
     </div>
 {% endblock %}

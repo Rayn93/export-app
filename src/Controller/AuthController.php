@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Controller;
 
@@ -64,27 +65,19 @@ class AuthController extends AbstractController
             'scopes' => 'read_products',
         ]);
 
-        $accessToken = $provider->getAccessToken('authorization_code', [
-            'code' => $code,
-        ]);
-
-        // Sprawdź, czy token dla tego sklepu już istnieje
+        $accessToken = $provider->getAccessToken('authorization_code', ['code' => $code]);
         $shopifyToken = $this->shopifyTokenRepository->findOneBy(['shopDomain' => $shop]);
 
         if (!$shopifyToken) {
-            // Jeśli nie istnieje, utwórz nowy rekord
             $shopifyToken = new ShopifyOauthToken();
             $shopifyToken->setShopDomain($shop);
             $shopifyToken->setCreatedAt(new \DateTime());
         }
 
-        // Zaktualizuj token i datę aktualizacji
         $shopifyToken->setAccessToken($accessToken->getToken());
         $shopifyToken->setUpdatedAt(new \DateTime());
-
-        // Zapisz do bazy danych
         $this->shopifyTokenRepository->save($shopifyToken, true);
 
-        return $this->redirectToRoute('export_products', ['shop' => $shop]);
+        return $this->redirectToRoute('shopify_export_products', ['shop' => $shop]);
     }
 }

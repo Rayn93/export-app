@@ -1,10 +1,12 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Controller;
 
 use App\Config\Enum\Protocol;
 use App\Entity\ShopifyAppConfig;
 use App\Repository\ShopifyAppConfigRepository;
+use App\Service\ShopifyRequestValidator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,30 +15,25 @@ use Symfony\Component\Routing\Annotation\Route;
 final class ShopifyConfigController extends AbstractController
 {
     #[Route('/shopify/config', name: 'app_shopify_config')]
-    public function index(Request $request, ShopifyAppConfigRepository $appConfigRepository): Response
+    public function index(Request $request, ShopifyAppConfigRepository $appConfigRepository, ShopifyRequestValidator $validator): Response
     {
+        if (!$validator->validateShopifyRequest($request)) {
+            return new Response('Unauthorized', 401);
+        }
+
         $shop = $request->query->get('shop');
         $host = $request->query->get('host');
-        $hmac = $request->query->get('hmac');
-        $query = $request->query->all();
-
-//        Verify if it is request from Shopify
-        if (!$this->verifyHmac($query, $hmac)) {
-            return new Response('Invalid HMAC signature', 403);
-        }
 
         if (!$shop) {
             return new Response('Missing shop parameter', 400);
         }
 
-        // Pobierz ustawienia dla sklepu
         $shopifyAppConfig = $appConfigRepository->findOneBy(['shopDomain' => $shop]);
 
         if (!$shopifyAppConfig) {
             $shopifyAppConfig = ShopifyAppConfig::createEmptyForShop($shop);
         }
 
-        // Obsługa formularza
         if ($request->isMethod('POST')) {
             $shopifyAppConfig->setProtocol(Protocol::from($request->request->get('protocol')));
             $shopifyAppConfig->setServerUrl($request->request->get('server_url'));
@@ -49,7 +46,7 @@ final class ShopifyConfigController extends AbstractController
             $appConfigRepository->save($shopifyAppConfig, true);
             $this->addFlash('success', 'Configuration saved successfully!');
 
-            return $this->redirectToRoute('app_shopify_config', ['shop' => $shop, 'host' => $host]);
+            return $this->redirectToRoute('app_shopify_config', $request->query->all());
         }
 
         return $this->render('shopify_config/index.html.twig', [
@@ -58,21 +55,5 @@ final class ShopifyConfigController extends AbstractController
             'shopify_client_id' => $this->getParameter('shopify_client_id'),
             'config' => $shopifyAppConfig,
         ]);
-    }
-
-    private function verifyHmac(array $query, ?string $hmac): bool
-    {
-        if (!$hmac) {
-            return false;
-        }
-
-        $params = $query;
-        unset($params['hmac']);
-        ksort($params);
-        $queryString = http_build_query($params);
-        $clientSecret = $this->getParameter('shopify_client_secret');
-        $calculatedHmac = hash_hmac('sha256', $queryString, $clientSecret);
-
-        return hash_equals($hmac, $calculatedHmac);
     }
 }
