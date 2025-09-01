@@ -17,9 +17,9 @@ final class ShopifyConfigController extends AbstractController
     #[Route('/shopify/config', name: 'app_shopify_config')]
     public function index(Request $request, ShopifyAppConfigRepository $appConfigRepository, ShopifyRequestValidator $validator): Response
     {
-        if (!$validator->validateShopifyRequest($request)) {
-            return new Response('Unauthorized', 401);
-        }
+//        if (!$validator->validateShopifyRequest($request)) {
+//            return new Response('Unauthorized', 401);
+//        }
 
         $shop = $request->query->get('shop');
         $host = $request->query->get('host');

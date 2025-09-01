@@ -8,19 +8,19 @@
     {% endblock %}
 
     {% block javascripts %}
-        <!-- Dodaj Shopify App Bridge -->
-        <script src="https://unpkg.com/@shopify/app-bridge@3"></script>
-        <script src="https://unpkg.com/@shopify/app-bridge-utils@3"></script>
-        <script>
-            // Inicjalizacja App Bridge
-            var AppBridge = window['app-bridge'];
-            var createApp = AppBridge.createApp;
-            var app = createApp({
-                apiKey: '{{ shopify_client_id }}',
-                host: '{{ host }}',
-                shop: '{{ shop }}',
-            });
-        </script>
+{#        <!-- Dodaj Shopify App Bridge -->#}
+{#        <script src="https://unpkg.com/@shopify/app-bridge@3"></script>#}
+{#        <script src="https://unpkg.com/@shopify/app-bridge-utils@3"></script>#}
+{#        <script>#}
+{#            // Inicjalizacja App Bridge#}
+{#            var AppBridge = window['app-bridge'];#}
+{#            var createApp = AppBridge.createApp;#}
+{#            var app = createApp({#}
+{#                apiKey: '{{ shopify_client_id }}',#}
+{#                host: '{{ host }}',#}
+{#                shop: '{{ shop }}',#}
+{#            });#}
+{#        </script>#}
     {% endblock %}
 </head>
 <body>
