@@ -5,55 +5,51 @@ namespace App\Service;
 
 class ShopifyToFactFinderProductMapper
 {
-    public function map(array $shopifyProducts): array
+    public function map(array $shopifyProducts, string $shopDomain): \Generator
     {
-        $rows = [];
-
         foreach ($shopifyProducts as $product) {
             $masterId   = (string) $product['id'];
             $brand      = $product['vendor'] ?? '';
             $category   = $this->buildCategoryPath($product);
-            $deeplink   = "/products/{$product['handle']}";
+            $deeplink   = "https://{$shopDomain}/products/{$product['handle']}";
             $description = strip_tags($product['body_html'] ?? '');
             $imageUrl   = $product['images'][0]['src'] ?? '';
 
             $variants   = $product['variants'] ?? [];
             $hasMultipleVariants = count($variants) > 1;
 
-            // --- rekord mastera ---
-            $rows[] = [
-                'ProductNumber' => $masterId,
-                'Master'        => $masterId,
-                'Name'          => $product['title'] ?? '',
-                'Brand'         => $brand,
-                'CategoryPath'  => $category,
-                'Deeplink'      => $deeplink,
-                'Description'   => $description,
-                'ImageUrl'      => $imageUrl,
-                'Price'         => $variants[0]['price'] ?? '',
+            // master
+            yield [
+                'ProductNumber'    => $masterId,
+                'Master'           => $masterId,
+                'Name'             => $product['title'] ?? '',
+                'Brand'            => $brand,
+                'CategoryPath'     => $category,
+                'Deeplink'         => $deeplink,
+                'Description'      => $description,
+                'ImageUrl'         => $imageUrl,
+                'Price'            => $variants[0]['price'] ?? '',
                 'FilterAttributes' => $this->buildMasterFilterAttributes($variants, $product['options'] ?? []),
             ];
 
-            // --- tylko jeśli jest więcej niż 1 wariant ---
+            // warianty (tylko jeśli jest > 1)
             if ($hasMultipleVariants) {
                 foreach ($variants as $variant) {
-                    $rows[] = [
-                        'ProductNumber' => (string) ($variant['id'] ?? ''),
-                        'Master'        => $masterId,
-                        'Name'          => trim($product['title'] . ' ' . ($variant['title'] !== 'Default Title' ? $variant['title'] : '')),
-                        'Brand'         => $brand,
-                        'CategoryPath'  => $category,
-                        'Deeplink'      => $deeplink,
-                        'Description'   => $description,
-                        'ImageUrl'      => $imageUrl,
-                        'Price'         => $variant['price'] ?? '',
+                    yield [
+                        'ProductNumber'    => (string) ($variant['id'] ?? ''),
+                        'Master'           => $masterId,
+                        'Name'             => trim($product['title'] . ' ' . ($variant['title'] !== 'Default Title' ? $variant['title'] : '')),
+                        'Brand'            => $brand,
+                        'CategoryPath'     => $category,
+                        'Deeplink'         => $deeplink,
+                        'Description'      => $description,
+                        'ImageUrl'         => $imageUrl,
+                        'Price'            => $variant['price'] ?? '',
                         'FilterAttributes' => $this->buildVariantFilterAttributes($variant, $product['options'] ?? []),
                     ];
                 }
             }
         }
-
-        return $rows;
     }
 
     private function buildCategoryPath(array $product): string

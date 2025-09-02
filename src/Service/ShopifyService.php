@@ -15,32 +15,40 @@ class ShopifyService
     ) {
     }
 
-//    public function getProducts(string $shop): array
-//    {
-//        $shopifyToken = $this->shopifyTokenRepository->findOneBy(['shopDomain' => $shop]);
-//
-//        if (!$shopifyToken) {
-//            throw new \Exception('No access token found for shop: ' . $shop);
-//        }
-//
-//        $accessToken = $shopifyToken->getAccessToken();
-//
-//        try {
-//            $response = $this->client->request('GET', "https://{$shop}/admin/api/2025-01/products.json", [
-//                'headers' => [
-//                    'X-Shopify-Access-Token' => $accessToken,
-//                ],
-//            ]);
-//
-//            return $response->toArray()['products'];
-//        } catch (HttpExceptionInterface $e) {
-//            if ($e->getResponse()->getStatusCode() === 401 || $e->getResponse()->getStatusCode() === 403) {
-//                throw new \Exception('Access token is invalid or expired for shop: ' . $shop, 401);
-//            }
-//            throw new \Exception('Failed to fetch products: ' . $e->getMessage());
-//        }
-//    }
+    public function streamProducts(string $shop): \Generator
+    {
+        $shopifyToken = $this->shopifyTokenRepository->findOneBy(['shopDomain' => $shop]);
 
+        if (!$shopifyToken) {
+            throw new \Exception('No access token found for shop: ' . $shop);
+        }
+
+        $accessToken = $shopifyToken->getAccessToken();
+
+        $endpoint = "https://{$shop}/admin/api/2025-01/products.json?limit=250";
+        $headers = [
+            'X-Shopify-Access-Token' => $accessToken,
+        ];
+
+        try {
+            while ($endpoint) {
+                $response = $this->client->request('GET', $endpoint, ['headers' => $headers]);
+                $data = $response->toArray();
+                yield $data['products'] ?? [];
+
+                // obsługa linków do kolejnej strony
+                $linkHeader = $response->getHeaders(false)['link'][0] ?? null;
+                $endpoint = $this->getNextPageUrl($linkHeader);
+            }
+        } catch (HttpExceptionInterface $e) {
+            if ($e->getResponse()->getStatusCode() === 401 || $e->getResponse()->getStatusCode() === 403) {
+                throw new \Exception('Access token is invalid or expired for shop: ' . $shop, 401);
+            }
+            throw new \Exception('Failed to fetch products: ' . $e->getMessage());
+        }
+    }
+
+    //Old metod to get products as array
     public function getProducts(string $shop): array
     {
         $shopifyToken = $this->shopifyTokenRepository->findOneBy(['shopDomain' => $shop]);

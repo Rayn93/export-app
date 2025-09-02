@@ -13,15 +13,24 @@ use League\Flysystem\PhpseclibV3\SftpConnectionProvider;
 
 class UploadService
 {
-    public function upload(string $csvData, string $filename, string $host, string $username, string $privateKey, string $passphrase, int $port, string $path, bool $useSftp): bool
-    {
+    public function uploadFile(
+        string $localFilePath,
+        string $filename,
+        string $host,
+        string $username,
+        string $privateKey,
+        string $passphrase,
+        int $port,
+        string $path,
+        bool $useSftp
+    ): bool {
         try {
             if ($useSftp) {
                 $adapter = new SftpAdapter(
                     SftpConnectionProvider::fromArray([
-                        'host' => $host,
-                        'port' => $port,
-                        'username' => $username,
+                        'host'       => $host,
+                        'port'       => $port,
+                        'username'   => $username,
                         'privateKey' => $privateKey,
                         'passphrase' => $passphrase,
                     ]),
@@ -30,17 +39,25 @@ class UploadService
             } else {
                 $adapter = new FtpAdapter(
                     FtpConnectionOptions::fromArray([
-                        'host' => $host,
-                        'port' => $port,
+                        'host'     => $host,
+                        'port'     => $port,
                         'username' => $username,
                         'password' => $passphrase,
-                        'root' => $path,
+                        'root'     => $path,
                     ])
                 );
             }
 
             $filesystem = new Filesystem($adapter);
-            $filesystem->write($filename, $csvData);
+
+            $stream = fopen($localFilePath, 'r');
+            if ($stream === false) {
+                throw new \RuntimeException("Nie udało się otworzyć pliku: $localFilePath");
+            }
+
+            $filesystem->writeStream($filename, $stream);
+
+            fclose($stream);
 
             return true;
         } catch (Exception $e) {

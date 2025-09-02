@@ -6,6 +6,7 @@ namespace App\Controller;
 use App\Config\Enum\Protocol;
 use App\Repository\ShopifyAppConfigRepository;
 use App\Service\Export\CsvGenerator;
+use App\Service\Export\FactFinderExporter;
 use App\Service\ShopifyRequestValidator;
 use App\Service\ShopifyService;
 use App\Service\ShopifyToFactFinderProductMapper;
@@ -20,8 +21,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ExportController extends AbstractController
 {
-    public function __construct(private readonly ShopifyService $shopifyService, private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly ShopifyService $shopifyService,
+        private readonly LoggerInterface $logger,
+        private readonly FactFinderExporter $factFinderExporter,
+    ) {
     }
 
     /**
@@ -34,7 +38,6 @@ class ExportController extends AbstractController
         Request $request,
         ShopifyAppConfigRepository $shopifyAppConfigRepository,
         ShopifyRequestValidator $validator,
-        CsvGenerator $csvGenerator,
         UploadService $uploadService,
     ): Response {
 //        if (!$validator->validateShopifyRequest($request)) {
@@ -70,41 +73,9 @@ class ExportController extends AbstractController
             return $this->redirectToRoute('app_shopify_config', $request->query->all());
         }
 
-        try {
-            $products = $this->shopifyService->getProducts($shop);
-        } catch (Exception $e) {
-            if ($e->getCode() === 401) {
-                $this->logger->warning('Access token expired for shop: ' . $shop);
-                // Token jest nieważny – przekieruj do autoryzacji
-                return $this->redirectToRoute('shopify_install', ['shop' => $shop]);
-            }
-
-            $this->addFlash('error', 'Failed to fetch products from Shopify.');
-
-            return $this->redirectToRoute('app_shopify_config', $request->query->all());
-        }
-
-        // Generuj plik CSV
-        $mapper = new ShopifyToFactFinderProductMapper();
-        $factFinderRows = $mapper->map($products);
-        $fields = [
-            'ProductNumber',
-            'Master',
-            'Name',
-            'Brand',
-            'CategoryPath',
-            'Deeplink',
-            'Description',
-            'ImageUrl',
-            'Price',
-            'FilterAttributes',
-        ];
-
-        $csvData = $csvGenerator->generate($factFinderRows, $fields);
-
-        // Wyślij plik na serwer FTP/SFTP
+        $file = $this->factFinderExporter->export($shop);
         $filename = 'shopify_products_export_' . date('Ymd_His') . '.csv';
-        $success = $uploadService->upload($csvData, $filename, $ftpHost, $ftpUsername, $ftpPrivateKey, $ftpPassphrase, $ftpPort, $ftpPath, $useSftp);
+        $success = $uploadService->uploadFile($file, $filename, $ftpHost, $ftpUsername, $ftpPrivateKey, $ftpPassphrase, $ftpPort, $ftpPath, $useSftp);
 
         if ($success) {
             $this->addFlash('success', 'Products exported and uploaded to FTP/SFTP successfully.');
