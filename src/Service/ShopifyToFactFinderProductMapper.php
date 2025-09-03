@@ -3,102 +3,121 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-class ShopifyToFactFinderProductMapper
+final class ShopifyToFactFinderProductMapper
 {
     public function map(array $shopifyProducts, string $shopDomain): \Generator
     {
-        foreach ($shopifyProducts as $product) {
-            $masterId   = (string) $product['id'];
-            $brand      = $product['vendor'] ?? '';
-            $category   = $this->buildCategoryPath($product);
-            $deeplink   = "https://{$shopDomain}/products/{$product['handle']}";
-            $description = strip_tags($product['body_html'] ?? '');
-            $imageUrl   = $product['images'][0]['src'] ?? '';
-
-            $variants   = $product['variants'] ?? [];
-            $hasMultipleVariants = count($variants) > 1;
-
-            // master
-            yield [
+        foreach ($shopifyProducts as $p) {
+            $masterId     = (string) $p['legacyResourceId'];
+            $title        = $p['title'] ?? '';
+            $brand        = $p['vendor'] ?? '';
+            $deeplink     = $this->buildDeeplink($shopDomain, $p['handle'] ?? '', $p['onlineStoreUrl'] ?? null);
+            $description  = isset($p['descriptionHtml']) ? trim(strip_tags($p['descriptionHtml'])) : '';
+            $imageUrl     = $p['images']['edges'][0]['node']['url'] ?? '';
+            $categoryPath = $this->buildCategoryPathFromTaxonomy($p['category'] ?? null);
+            $variantEdges = $p['variants']['edges'] ?? [];
+            $variants     = array_map(static fn(array $e) => $e['node'], $variantEdges);
+            $hasMultiple = count($variants) > 1;
+            $masterPrice = isset($variants[0]['price']['amount']) ? (string)$variants[0]['price']['amount'] : '';
+            $masterRow = [
                 'ProductNumber'    => $masterId,
                 'Master'           => $masterId,
-                'Name'             => $product['title'] ?? '',
+                'Name'             => $title,
                 'Brand'            => $brand,
-                'CategoryPath'     => $category,
+                'CategoryPath'     => $categoryPath,
                 'Deeplink'         => $deeplink,
                 'Description'      => $description,
                 'ImageUrl'         => $imageUrl,
-                'Price'            => $variants[0]['price'] ?? '',
-                'FilterAttributes' => $this->buildMasterFilterAttributes($variants, $product['options'] ?? []),
+                'Price'            => $masterPrice,
+                'FilterAttributes' => $this->buildMasterFilterAttributes($variants),
             ];
 
-            // warianty (tylko jeśli jest > 1)
-            if ($hasMultipleVariants) {
-                foreach ($variants as $variant) {
+            yield $masterRow;
+
+            if ($hasMultiple) {
+                foreach ($variants as $v) {
+                    $variantId = (string) $v['legacyResourceId'];
+                    $vTitle    = $v['title'] ?? '';
+                    $name      = trim($title . ' ' . ($vTitle !== 'Default Title' ? $vTitle : ''));
+                    $price     = isset($v['price']['amount']) ? (string)$v['price']['amount'] : '';
+
                     yield [
-                        'ProductNumber'    => (string) ($variant['id'] ?? ''),
+                        'ProductNumber'    => $variantId,
                         'Master'           => $masterId,
-                        'Name'             => trim($product['title'] . ' ' . ($variant['title'] !== 'Default Title' ? $variant['title'] : '')),
+                        'Name'             => $name,
                         'Brand'            => $brand,
-                        'CategoryPath'     => $category,
+                        'CategoryPath'     => $categoryPath,
                         'Deeplink'         => $deeplink,
                         'Description'      => $description,
                         'ImageUrl'         => $imageUrl,
-                        'Price'            => $variant['price'] ?? '',
-                        'FilterAttributes' => $this->buildVariantFilterAttributes($variant, $product['options'] ?? []),
+                        'Price'            => $price,
+                        'FilterAttributes' => $this->buildVariantFilterAttributes($v['selectedOptions'] ?? []),
                     ];
                 }
             }
         }
     }
 
-    private function buildCategoryPath(array $product): string
+    private function buildCategoryPathFromTaxonomy(?array $category): string
     {
-        // Shopify nie ma hierarchii kategorii natywnie – musisz wymyślić mapping
-        // Na start: użyj `product_type` jako CategoryPath
-        if (!empty($product['product_type'])) {
-            return $product['product_type'];
+        $fullName = $category['fullName'] ?? '';
+
+        if ($fullName === '') {
+            return 'Uncategorized';
         }
 
-        return 'Uncategorized';
+        if (str_contains($fullName, ' > ')) {
+            $fullName = str_replace(' > ', '/', $fullName);
+        }
+
+        return $fullName;
     }
 
-    private function buildMasterFilterAttributes(array $variants, array $options): string
+    private function buildMasterFilterAttributes(array $variants): string
     {
-        $filters = [];
-
-        foreach ($options as $index => $option) {
-            $name = strtolower($option['name']);
-            $values = [];
-
-            foreach ($variants as $variant) {
-                $value = $variant['option' . ($index + 1)] ?? null;
-                if ($value && !in_array($value, $values, true)) {
-                    $values[] = $value;
+        $byName = [];
+        foreach ($variants as $v) {
+            foreach ($v['selectedOptions'] ?? [] as $opt) {
+                $name  = $opt['name']  ?? '';
+                $value = $opt['value'] ?? '';
+                if ($name === '' || $value === '' || ($name === 'Title' && $value === 'Default Title')) {
+                    continue;
+                }
+                $byName[$name] ??= [];
+                if (!in_array($value, $byName[$name], true)) {
+                    $byName[$name][] = $value;
                 }
             }
+        }
 
-            foreach ($values as $value) {
-                $filters[] = "{$name}={$value}";
+        $pairs = [];
+        foreach ($byName as $name => $values) {
+            foreach ($values as $v) {
+                $pairs[] = "{$name}={$v}";
             }
         }
 
-        return '|' . implode('|', $filters) . '|';
+        return $pairs ? '|' . implode('|', $pairs) . '|' : '';
     }
 
-
-    private function buildVariantFilterAttributes(array $variant, array $options): string
+    /** Atrybuty konkretnego wariantu */
+    private function buildVariantFilterAttributes(array $selectedOptions): string
     {
-        $filters = [];
-
-        foreach ($options as $index => $option) {
-            $name = strtolower($option['name']);
-            $value = $variant['option' . ($index + 1)] ?? null;
-            if ($value) {
-                $filters[] = "{$name}={$value}";
+        $pairs = [];
+        foreach ($selectedOptions as $opt) {
+            $name  = $opt['name']  ?? '';
+            $value = $opt['value'] ?? '';
+            if ($name === '' || $value === '' || ($name === 'Title' && $value === 'Default Title')) {
+                continue;
             }
+            $pairs[] = "{$name}={$value}";
         }
+        return $pairs ? '|' . implode('|', $pairs) . '|' : '';
+    }
 
-        return '|' . implode('|', $filters) . '|';
+    private function buildDeeplink(string $shopDomain, string $handle, ?string $onlineStoreUrl): string
+    {
+        // stabilny link do produktu
+        return $handle ? "https://{$shopDomain}/products/{$handle}" : (string)($onlineStoreUrl ?? '');
     }
 }

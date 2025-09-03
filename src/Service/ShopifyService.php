@@ -12,9 +12,12 @@ class ShopifyService
     public function __construct(
         private readonly HttpClientInterface         $client,
         private readonly ShopifyOauthTokenRepository $shopifyTokenRepository
-    ) {
-    }
+    ) {}
 
+    /**
+     * Streamuje produkty partiami (GraphQL) — ~100 na zapytanie.
+     * Zwraca generator, gdzie każdy yield to tablica produktów (nodes) z danej strony.
+     */
     public function streamProducts(string $shop): \Generator
     {
         $shopifyToken = $this->shopifyTokenRepository->findOneBy(['shopDomain' => $shop]);
@@ -24,86 +27,81 @@ class ShopifyService
         }
 
         $accessToken = $shopifyToken->getAccessToken();
+        $endpoint = "https://{$shop}/admin/api/2025-07/graphql.json";
+        $cursor = null;
 
-        $endpoint = "https://{$shop}/admin/api/2025-01/products.json?limit=250";
-        $headers = [
-            'X-Shopify-Access-Token' => $accessToken,
-        ];
-
-        try {
-            while ($endpoint) {
-                $response = $this->client->request('GET', $endpoint, ['headers' => $headers]);
-                $data = $response->toArray();
-                yield $data['products'] ?? [];
-
-                // obsługa linków do kolejnej strony
-                $linkHeader = $response->getHeaders(false)['link'][0] ?? null;
-                $endpoint = $this->getNextPageUrl($linkHeader);
-            }
-        } catch (HttpExceptionInterface $e) {
-            if ($e->getResponse()->getStatusCode() === 401 || $e->getResponse()->getStatusCode() === 403) {
-                throw new \Exception('Access token is invalid or expired for shop: ' . $shop, 401);
-            }
-            throw new \Exception('Failed to fetch products: ' . $e->getMessage());
-        }
-    }
-
-    //Old metod to get products as array
-    public function getProducts(string $shop): array
-    {
-        $shopifyToken = $this->shopifyTokenRepository->findOneBy(['shopDomain' => $shop]);
-
-        if (!$shopifyToken) {
-            throw new \Exception('No access token found for shop: ' . $shop);
-        }
-
-        $accessToken = $shopifyToken->getAccessToken();
-        $allProducts = [];
-
-        $endpoint = "https://{$shop}/admin/api/2025-01/products.json?limit=250";
-        $headers = [
-            'X-Shopify-Access-Token' => $accessToken,
-        ];
-
-        try {
-            while ($endpoint) {
-                $response = $this->client->request('GET', $endpoint, [
-                    'headers' => $headers,
+        do {
+            try {
+                $response = $this->client->request('POST', $endpoint, [
+                    'headers' => [
+                        'X-Shopify-Access-Token' => $accessToken,
+                        'Content-Type' => 'application/json',
+                    ],
+                    'json' => [
+                        'query'     => $this->getGQL(),
+                        'variables' => ['first' => 100, 'after' => $cursor],
+                    ],
                 ]);
 
-                $data = $response->toArray();
-                $allProducts = array_merge($allProducts, $data['products'] ?? []);
-
-                // Obsługa nagłówka "Link" do kolejnej strony
-                $linkHeader = $response->getHeaders(false)['link'][0] ?? null;
-                $endpoint = $this->getNextPageUrl($linkHeader);
+                $payload = $response->toArray();
+            } catch (HttpExceptionInterface $e) {
+                if (in_array($e->getResponse()->getStatusCode(), [401, 403], true)) {
+                    throw new \Exception('Access token is invalid or expired for shop: ' . $shop, 401);
+                }
+                throw new \Exception('Failed to fetch products: ' . $e->getMessage());
             }
-        } catch (HttpExceptionInterface $e) {
-            if ($e->getResponse()->getStatusCode() === 401 || $e->getResponse()->getStatusCode() === 403) {
-                throw new \Exception('Access token is invalid or expired for shop: ' . $shop, 401);
-            }
-            throw new \Exception('Failed to fetch products: ' . $e->getMessage());
-        }
 
-        return $allProducts;
+            $productsConnection = $payload['data']['products'] ?? null;
+
+            if (!$productsConnection) {
+                break;
+            }
+
+            $edges = $productsConnection['edges'] ?? [];
+            $products = array_map(static fn(array $edge) => $edge['node'], $edges);
+
+            if ($products) {
+                yield $products;
+            }
+
+            $pageInfo = $productsConnection['pageInfo'] ?? [];
+            $hasNext  = (bool)($pageInfo['hasNextPage'] ?? false);
+            $cursor   = $pageInfo['endCursor'] ?? null;
+        } while ($hasNext && $cursor);
     }
 
-    private function getNextPageUrl(?string $linkHeader): ?string
+    public function getGQL() : string
     {
-        if (!$linkHeader) {
-            return null;
-        }
-
-        // przykładowy nagłówek:
-        // <https://myshop.myshopify.com/admin/api/2025-01/products.json?page_info=abcd&limit=250>; rel="next"
-        foreach (explode(',', $linkHeader) as $part) {
-            if (str_contains($part, 'rel="next"')) {
-                if (preg_match('/<([^>]+)>/', $part, $matches)) {
-                    return $matches[1];
-                }
+        return <<<'GQL'
+query Products($first: Int!, $after: String) {
+  products(first: $first, after: $after) {
+    pageInfo { hasNextPage endCursor }
+    edges {
+      node {
+        id
+        legacyResourceId
+        title
+        vendor
+        handle
+        descriptionHtml
+        onlineStoreUrl
+        category { id fullName }
+        images(first: 1) { edges { node { url } } }
+        variants(first: 100) {
+          edges {
+            node {
+              id
+              legacyResourceId
+              title
+              price 
+              selectedOptions { name value }
             }
+          }
         }
-
-        return null;
+      }
+    }
+  }
+}
+GQL;
     }
 }
