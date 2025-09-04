@@ -60,6 +60,8 @@ class ShopifyService
             $edges = $productsConnection['edges'] ?? [];
             $products = array_map(static fn(array $edge) => $edge['node'], $edges);
 
+
+//            dump($products);die();
             if ($products) {
                 yield $products;
             }

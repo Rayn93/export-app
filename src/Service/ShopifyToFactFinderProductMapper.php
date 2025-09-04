@@ -18,7 +18,7 @@ final class ShopifyToFactFinderProductMapper
             $variantEdges = $p['variants']['edges'] ?? [];
             $variants     = array_map(static fn(array $e) => $e['node'], $variantEdges);
             $hasMultiple = count($variants) > 1;
-            $masterPrice = isset($variants[0]['price']['amount']) ? (string)$variants[0]['price']['amount'] : '';
+            $masterPrice = isset($variants[0]['price']) ? (string)$variants[0]['price'] : '';
             $masterRow = [
                 'ProductNumber'    => $masterId,
                 'Master'           => $masterId,
@@ -39,7 +39,7 @@ final class ShopifyToFactFinderProductMapper
                     $variantId = (string) $v['legacyResourceId'];
                     $vTitle    = $v['title'] ?? '';
                     $name      = trim($title . ' ' . ($vTitle !== 'Default Title' ? $vTitle : ''));
-                    $price     = isset($v['price']['amount']) ? (string)$v['price']['amount'] : '';
+                    $price     = isset($v['price']) ? (string)$v['price'] : '';
 
                     yield [
                         'ProductNumber'    => $variantId,
@@ -70,7 +70,7 @@ final class ShopifyToFactFinderProductMapper
             $fullName = str_replace(' > ', '/', $fullName);
         }
 
-        return $fullName;
+        return  str_replace('%2F', '/', urlencode($fullName));
     }
 
     private function buildMasterFilterAttributes(array $variants): string
@@ -118,6 +118,6 @@ final class ShopifyToFactFinderProductMapper
     private function buildDeeplink(string $shopDomain, string $handle, ?string $onlineStoreUrl): string
     {
         // stabilny link do produktu
-        return $handle ? "https://{$shopDomain}/products/{$handle}" : (string)($onlineStoreUrl ?? '');
+        return $handle ? "https://{$shopDomain}/products/{$handle}" : $onlineStoreUrl ?? '';
     }
 }

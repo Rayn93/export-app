@@ -78,6 +78,6 @@ class AuthController extends AbstractController
         $shopifyToken->setUpdatedAt(new \DateTime());
         $this->shopifyTokenRepository->save($shopifyToken, true);
 
-        return $this->redirectToRoute('shopify_export_products', ['shop' => $shop]);
+        return $this->redirectToRoute('app_shopify_config', ['shop' => $shop]);
     }
 }

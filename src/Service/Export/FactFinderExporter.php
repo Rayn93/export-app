@@ -32,13 +32,13 @@ class FactFinderExporter
             'ImageUrl',
             'Price',
             'FilterAttributes'
-        ]);
+        ], ';');
 
         // Strumieniowe pobieranie i mapowanie produktów
         foreach ($this->shopifyService->streamProducts($shopDomain) as $batch) {
 
             foreach ($this->mapper->map($batch, $shopDomain) as $row) {
-                fputcsv($file, $row);
+                fputcsv($file, $row, ';');
             }
         }
 
