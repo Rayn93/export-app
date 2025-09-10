@@ -5,11 +5,9 @@ namespace App\Controller;
 
 use App\Config\Enum\Protocol;
 use App\Repository\ShopifyAppConfigRepository;
-use App\Service\Export\CsvGenerator;
 use App\Service\Export\FactFinderExporter;
 use App\Service\ShopifyRequestValidator;
 use App\Service\ShopifyService;
-use App\Service\ShopifyToFactFinderProductMapper;
 use App\Service\Upload\UploadService;
 use League\Csv\CannotInsertRecord;
 use League\Csv\Exception;
@@ -40,9 +38,9 @@ class ExportController extends AbstractController
         ShopifyRequestValidator $validator,
         UploadService $uploadService,
     ): Response {
-//        if (!$validator->validateShopifyRequest($request)) {
-//            return new Response('Unauthorized', 401);
-//        }
+        if (!$validator->validateShopifyRequest($request)) {
+            return new Response('Unauthorized', 401);
+        }
 
         $shop = $request->query->get('shop');
 

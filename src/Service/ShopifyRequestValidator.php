@@ -17,31 +17,46 @@ readonly class ShopifyRequestValidator
     ) {
     }
 
+    /**
+     * Automatycznie wybiera tryb walidacji:
+     * - HMAC → dla callbacków i config page
+     * - JWT  → dla requestów z App Bridge (iframe)
+     */
     public function validateShopifyRequest(Request $request): bool
+    {
+        $authHeader = $request->headers->get('Authorization');
+        if ($authHeader && str_starts_with($authHeader, 'Bearer ')) {
+            $token = substr($authHeader, 7);
+            return $this->verifySessionToken($token, $request->query->get('shop'));
+        }
+
+        // 2️⃣ W przeciwnym razie → HMAC
+        return $this->validateHmacRequest($request);
+    }
+
+    /**
+     * Walidacja dla OAuth callback i config page (HMAC).
+     */
+    public function validateHmacRequest(Request $request): bool
     {
         $shop = $request->query->get('shop');
         $hmac = $request->query->get('hmac');
         $query = $request->query->all();
-
-        if (!$this->verifyHmac($query, $hmac)) {
-            $this->logger->error('HMAC verification failed', ['query' => $query, 'hmac' => $hmac]);
-
-            return false;
-        }
 
         if (!$shop) {
             $this->logger->error('Shop parameter is missing');
             return false;
         }
 
-        $token = $request->query->get('id_token');
-
-        if (!$token) {
-            $this->logger->error('id_token parameter is missing');
+        if (!$this->verifyHmac($query, $hmac)) {
+            $this->logger->error('HMAC verification failed', [
+                'query' => $query,
+                'hmac'  => $hmac,
+            ]);
             return false;
         }
 
-        return $this->verifySessionToken($token, $shop);
+        return true;
     }
 
     private function verifyHmac(array $query, ?string $hmac): bool
@@ -52,14 +67,20 @@ readonly class ShopifyRequestValidator
 
         $params = $query;
         unset($params['hmac']);
+
         ksort($params);
-        $queryString = http_build_query($params);
+
+        // Shopify liczy HMAC na URLEncoded params
+        $queryString = urldecode(http_build_query($params));
         $calculatedHmac = hash_hmac('sha256', $queryString, $this->clientSecret);
 
         return hash_equals($hmac, $calculatedHmac);
     }
 
-    private function verifySessionToken(string $token, string $shop): bool
+    /**
+     * Walidacja dla App Bridge (JWT session token).
+     */
+    private function verifySessionToken(string $token, ?string $shop): bool
     {
         try {
             $this->logger->info('Verifying session token', ['shop' => $shop]);
@@ -71,16 +92,14 @@ readonly class ShopifyRequestValidator
                     'expected' => $this->clientId,
                     'actual' => $decodedToken->aud,
                 ]);
-
                 return false;
             }
 
-            if ($decodedToken->dest !== "https://{$shop}") {
+            if ($shop && $decodedToken->dest !== "https://{$shop}") {
                 $this->logger->error('Destination mismatch', [
                     'expected' => "https://{$shop}",
-                    'actual' => $decodedToken->dest,
+                    'actual'   => $decodedToken->dest,
                 ]);
-
                 return false;
             }
 
@@ -97,9 +116,8 @@ readonly class ShopifyRequestValidator
             $this->logger->error('Session token verification failed', [
                 'error' => $e->getMessage(),
                 'token' => $token,
-                'shop' => $shop,
+                'shop'  => $shop,
             ]);
-
             return false;
         }
     }
