@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Config\Enum\Protocol;
 use App\Repository\ShopifyAppConfigRepository;
 use App\Service\Export\FactFinderExporter;
 use App\Service\ShopifyRequestValidator;
@@ -46,7 +45,6 @@ class ExportController extends AbstractController
             return new Response('Missing shop parameter', 400);
         }
 
-        // Pobierz konfigurację aplikacji
         $shopifyAppConfig = $shopifyAppConfigRepository->findOneBy(['shopDomain' => $shop]);
 
         if (!$shopifyAppConfig) {
@@ -56,24 +54,19 @@ class ExportController extends AbstractController
             return $this->redirectToRoute('app_shopify_config', $request->query->all());
         }
 
-        // Pobierz dane FTP z konfiguracji
         $ftpHost = $shopifyAppConfig->getServerUrl();
         $ftpUsername = $shopifyAppConfig->getUsername();
-        $ftpPrivateKey = $shopifyAppConfig->getPrivateKeyContent();
-        $ftpPassphrase = $shopifyAppConfig->getKeyPassphrase();
-        $ftpPort = $shopifyAppConfig->getPort() ?: 21;
-        $ftpPath = $shopifyAppConfig->getRootDirectory() ?: '/';
-        $useSftp = $shopifyAppConfig->getProtocol() === Protocol::SFTP;
+        $ffChannelName = $shopifyAppConfig->getFfChannelName();
 
-        if (!$ftpHost || !$ftpUsername || !$ftpPrivateKey) {
+        if (empty($ftpHost) || empty($ftpUsername) || empty($ffChannelName)) {
             $this->addFlash('error', 'FTP/SFTP credentials are missing.');
 
             return $this->redirectToRoute('app_shopify_config', $request->query->all());
         }
 
         $file = $this->factFinderExporter->export($shop);
-        $filename = 'shopify_products_export_' . date('Ymd_His') . '.csv';
-        $success = $uploadService->uploadFile($file, $filename, $ftpHost, $ftpUsername, $ftpPrivateKey, $ftpPassphrase, $ftpPort, $ftpPath, $useSftp);
+        $filename = "export.productData.$ffChannelName.csv";
+        $success = $uploadService->uploadForShopifyConfig($shopifyAppConfig, $file, $filename);
 
         if ($success) {
             $this->addFlash('success', 'Products exported and uploaded to FTP/SFTP successfully.');

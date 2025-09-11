@@ -7,21 +7,24 @@
         <div class="Polaris-Page__Content">
             <div class="Polaris-Layout">
                 <div class="Polaris-Layout__Section">
-                    <h1 class="Polaris-DisplayText Polaris-DisplayText--sizeLarge">FactFinder export App Configuration</h1>
+                    <h1 class="Polaris-DisplayText Polaris-DisplayText--sizeLarge">FactFinder export App
+                        Configuration</h1>
 
                     {# Flash messages #}
                     {% for message in app.flashes('success') %}
-                        <div class="Polaris-Banner Polaris-Banner--statusSuccess" role="alert" style="margin-top:20px;">
+                        <div class="Polaris-Banner Polaris-Banner--statusSuccess" role="alert"
+                             style="margin-top:10px; background: darkgreen; color: white; padding: 5px 10px; display: inline-block">
                             <div class="Polaris-Banner__Content">{{ message }}</div>
                         </div>
                     {% endfor %}
                     {% for message in app.flashes('error') %}
-                        <div class="Polaris-Banner Polaris-Banner--statusCritical" role="alert" style="margin-top:20px;">
+                        <div class="Polaris-Banner Polaris-Banner--statusCritical" role="alert"
+                             style="margin-top:10px; background: red; color: white; padding: 5px 10px; display: inline-block">
                             <div class="Polaris-Banner__Content">{{ message }}</div>
                         </div>
                     {% endfor %}
 
-                    <form method="post" class="Polaris-Card" style="margin-top:20px;">
+                    <form method="post" class="Polaris-Card" style="margin-top:10px;">
                         <div class="Polaris-Card__Section">
                             <div class="Polaris-FormLayout">
                                 <div class="Polaris-Card__Header">
@@ -41,70 +44,14 @@
                                         <input id="ff_channel_name" name="ff_channel_name" type="text"
                                                class="Polaris-TextField__Input"
                                                value="{{ config.ffChannelName ?? '' }}"
-                                               placeholder="MyChannel" required>
+                                               placeholder="MyChannel">
                                         <div class="Polaris-TextField__Backdrop"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="Polaris-Card__Section" style="margin-top:20px;">
-                            <div class="Polaris-FormLayout">
-                                <div class="Polaris-Card__Header">
-                                    <h3 class="Polaris-Heading">Import Settings</h3>
-                                    <p class="Polaris-TextContainer">Fill in only if you want to use automatic import start after generating a new CSV file</p>
-                                </div>
-
-                                {# FactFinder Server URL #}
-                                <div class="Polaris-FormLayout__Item">
-                                    <div class="Polaris-Labelled__LabelWrapper">
-                                        <div class="Polaris-Label">
-                                            <label for="ff_api_server_url" class="Polaris-Label__Text">FactFinder Server URL</label>
-                                        </div>
-                                    </div>
-                                    <div class="Polaris-TextField">
-                                        <input id="ff_api_server_url" name="ff_api_server_url" type="text"
-                                               class="Polaris-TextField__Input"
-                                               value="{{ config.ffApiServerUrl ?? '' }}"
-                                               placeholder="https://domain.fact-finder.de/fact-finder">
-                                        <div class="Polaris-TextField__Backdrop"></div>
-                                    </div>
-                                </div>
-
-                                {# FactFinder Username #}
-                                <div class="Polaris-FormLayout__Item">
-                                    <div class="Polaris-Labelled__LabelWrapper">
-                                        <div class="Polaris-Label">
-                                            <label for="ff_api_username" class="Polaris-Label__Text">FactFinder Username</label>
-                                        </div>
-                                    </div>
-                                    <div class="Polaris-TextField">
-                                        <input id="ff_api_username" name="ff_api_username" type="text"
-                                               class="Polaris-TextField__Input"
-                                               value="{{ config.ffApiUsername ?? '' }}"
-                                               placeholder="myusername">
-                                        <div class="Polaris-TextField__Backdrop"></div>
-                                    </div>
-                                </div>
-
-                                {# FactFinder Password #}
-                                <div class="Polaris-FormLayout__Item">
-                                    <div class="Polaris-Labelled__LabelWrapper">
-                                        <div class="Polaris-Label">
-                                            <label for="ff_api_password" class="Polaris-Label__Text">Password</label>
-                                        </div>
-                                    </div>
-                                    <div class="Polaris-TextField">
-                                        <input id="ff_api_password" name="ff_api_password" type="password"
-                                               class="Polaris-TextField__Input"
-                                               value="{{ config.ffApiPassword ?? '' }}">
-                                        <div class="Polaris-TextField__Backdrop"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="Polaris-Card__Section" style="margin-top:20px;">
+                        <div class="Polaris-Card__Section">
                             <div class="Polaris-FormLayout">
                                 <div class="Polaris-Card__Header">
                                     <h2 class="Polaris-Heading">Upload Settings</h2>
@@ -113,29 +60,12 @@
 
                                 {# Protocol #}
                                 <div class="Polaris-FormLayout__Item">
-                                    <div class="Polaris-Labelled__LabelWrapper">
-                                        <div class="Polaris-Label">
-                                            <label for="protocol" class="Polaris-Label__Text">
-                                                Protocol <span style="color:red">*</span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="Polaris-Select">
-                                        <select id="protocol" name="protocol" class="Polaris-Select__Input" required>
-                                            <option value="FTP" {% if config.protocol.value == 'FTP' %}selected{% endif %}>FTP</option>
-                                            <option value="SFTP" {% if config.protocol.value == 'SFTP' %}selected{% endif %}>SFTP</option>
+                                    <div class="Polaris-Labelled">
+                                        <label class="Polaris-Labelled__Label" for="protocol">Protocol</label>
+                                        <select id="protocol" name="protocol" class="Polaris-Select" required style="display: block;margin-top: 6px;padding: 5px;width: 100%;">
+                                            <option value="FTP" {% if config.protocol == 'FTP' %}selected{% endif %}>FTP</option>
+                                            <option value="SFTP" {% if config.protocol == 'SFTP' %}selected{% endif %}>SFTP</option>
                                         </select>
-                                        <div class="Polaris-Select__Content" aria-hidden="true">
-                                            <span class="Polaris-Select__SelectedOption">FTP</span>
-                                            <span class="Polaris-Select__Icon">
-                      <span class="Polaris-Icon">
-                        <svg viewBox="0 0 20 20" class="Polaris-Icon__Svg" focusable="false" aria-hidden="true">
-                          <path d="M10 13l-5-5h10l-5 5z"></path>
-                        </svg>
-                      </span>
-                    </span>
-                                        </div>
-                                        <div class="Polaris-Select__Backdrop"></div>
                                     </div>
                                 </div>
 
@@ -212,14 +142,18 @@
                                 <div class="Polaris-FormLayout__Item">
                                     <div class="Polaris-Labelled__LabelWrapper">
                                         <div class="Polaris-Label">
-                                            <label for="private_key_content" class="Polaris-Label__Text">Private Key Content</label>
+                                            <label for="private_key_content" class="Polaris-Label__Text">Private Key
+                                                Content</label>
                                         </div>
                                     </div>
                                     <div class="Polaris-TextField Polaris-TextField--multiline">
-                  <textarea id="private_key_content" name="private_key_content"
-                            class="Polaris-TextField__Input"
-                            rows="5" placeholder="-----BEGIN PRIVATE KEY-----">{{ config.privateKeyContent ?? '' }}</textarea>
-                                        <div class="Polaris-TextField__Backdrop"></div>
+                                      <textarea id="private_key_content" name="private_key_content"
+                                                class="Polaris-TextField__Input"
+                                                rows="5"
+                                                placeholder="-----BEGIN PRIVATE KEY-----">
+                                                {{ config.privateKeyContent ?? '' }}
+                                      </textarea>
+                                      <div class="Polaris-TextField__Backdrop"></div>
                                     </div>
                                 </div>
 
@@ -243,17 +177,78 @@
                         </div>
 
                         <div class="Polaris-Card__Section">
-                            <button type="submit" class="Polaris-Button Polaris-Button--primary Polaris-Button--sizeLarge">
+                            <div class="Polaris-FormLayout">
+                                <div class="Polaris-Card__Header">
+                                    <h3 class="Polaris-Heading">Import Settings</h3>
+                                    <p class="Polaris-TextContainer">Fill in only if you want to use automatic import
+                                        start after generating a new CSV file</p>
+                                </div>
+
+                                {# FactFinder Server URL #}
+                                <div class="Polaris-FormLayout__Item">
+                                    <div class="Polaris-Labelled__LabelWrapper">
+                                        <div class="Polaris-Label">
+                                            <label for="ff_api_server_url" class="Polaris-Label__Text">FactFinder Server
+                                                URL</label>
+                                        </div>
+                                    </div>
+                                    <div class="Polaris-TextField">
+                                        <input id="ff_api_server_url" name="ff_api_server_url" type="text"
+                                               class="Polaris-TextField__Input"
+                                               value="{{ config.ffApiServerUrl ?? '' }}"
+                                               placeholder="https://domain.fact-finder.de/fact-finder">
+                                        <div class="Polaris-TextField__Backdrop"></div>
+                                    </div>
+                                </div>
+
+                                {# FactFinder Username #}
+                                <div class="Polaris-FormLayout__Item">
+                                    <div class="Polaris-Labelled__LabelWrapper">
+                                        <div class="Polaris-Label">
+                                            <label for="ff_api_username" class="Polaris-Label__Text">FactFinder
+                                                Username</label>
+                                        </div>
+                                    </div>
+                                    <div class="Polaris-TextField">
+                                        <input id="ff_api_username" name="ff_api_username" type="text"
+                                               class="Polaris-TextField__Input"
+                                               value="{{ config.ffApiUsername ?? '' }}"
+                                               placeholder="myusername">
+                                        <div class="Polaris-TextField__Backdrop"></div>
+                                    </div>
+                                </div>
+
+                                {# FactFinder Password #}
+                                <div class="Polaris-FormLayout__Item">
+                                    <div class="Polaris-Labelled__LabelWrapper">
+                                        <div class="Polaris-Label">
+                                            <label for="ff_api_password" class="Polaris-Label__Text">Password</label>
+                                        </div>
+                                    </div>
+                                    <div class="Polaris-TextField">
+                                        <input id="ff_api_password" name="ff_api_password" type="password"
+                                               class="Polaris-TextField__Input"
+                                               value="{{ config.ffApiPassword ?? '' }}">
+                                        <div class="Polaris-TextField__Backdrop"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="Polaris-Card__Section">
+                            <button type="submit"
+                                    class="Polaris-Button Polaris-Button--primary Polaris-Button--sizeLarge">
                                 Save Configuration
                             </button>
                         </div>
                     </form>
 
                     {# Export Button #}
-                    <div class="Polaris-Card" style="margin-top:20px;">
+                    <div class="Polaris-Card">
                         <div class="Polaris-Card__Section">
                             <form action="{{ path('shopify_export_products', app.request.query.all) }}" method="post">
-                                <button type="submit" class="Polaris-Button Polaris-Button--primary Polaris-Button--sizeLarge">
+                                <button type="submit"
+                                        class="Polaris-Button Polaris-Button--primary Polaris-Button--sizeLarge">
                                     Export Products to CSV
                                 </button>
                             </form>

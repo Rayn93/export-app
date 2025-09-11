@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace App\Service\Upload;
 
+use App\Config\Enum\Protocol;
+use App\Entity\ShopifyAppConfig;
+use App\Service\Utils\PasswordEncryptor;
 use League\Csv\Exception;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Ftp\FtpAdapter;
@@ -13,6 +16,24 @@ use League\Flysystem\PhpseclibV3\SftpConnectionProvider;
 
 class UploadService
 {
+    public function __construct(private PasswordEncryptor $passwordEncryptor)
+    {
+    }
+    public function uploadForShopifyConfig(ShopifyAppConfig $shopifyConfig, string $file, string $filename): bool
+    {
+       return $this->uploadFile(
+                $file,
+                $filename,
+                $shopifyConfig->getServerUrl(),
+                $shopifyConfig->getUsername(),
+                $shopifyConfig->getPrivateKeyContent(),
+                $shopifyConfig->getKeyPassphrase(),
+                $shopifyConfig->getPort() ?: 21,
+                $shopifyConfig->getRootDirectory() ?: '/',
+                $shopifyConfig->getProtocol() === Protocol::SFTP
+        );
+    }
+
     public function uploadFile(
         string $localFilePath,
         string $filename,
@@ -32,7 +53,7 @@ class UploadService
                         'port'       => $port,
                         'username'   => $username,
                         'privateKey' => $privateKey,
-                        'passphrase' => $passphrase,
+                        'passphrase' => $this->passwordEncryptor->decrypt($passphrase),
                     ]),
                     $path
                 );
@@ -42,21 +63,20 @@ class UploadService
                         'host'     => $host,
                         'port'     => $port,
                         'username' => $username,
-                        'password' => $passphrase,
+                        'password' => $this->passwordEncryptor->decrypt($passphrase),
                         'root'     => $path,
                     ])
                 );
             }
 
             $filesystem = new Filesystem($adapter);
-
             $stream = fopen($localFilePath, 'r');
+
             if ($stream === false) {
                 throw new \RuntimeException("Could not create a file in: $localFilePath");
             }
 
             $filesystem->writeStream($filename, $stream);
-
             fclose($stream);
 
             return true;
