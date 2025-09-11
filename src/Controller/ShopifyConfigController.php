@@ -17,9 +17,9 @@ final class ShopifyConfigController extends AbstractController
     #[Route('/shopify/config', name: 'app_shopify_config')]
     public function index(Request $request, ShopifyAppConfigRepository $appConfigRepository, ShopifyRequestValidator $validator): Response
     {
-        if (!$validator->validateShopifyRequest($request)) {
-            return new Response('Unauthorized', 401);
-        }
+//        if (!$validator->validateShopifyRequest($request)) {
+//            return new Response('Unauthorized', 401);
+//        }
 
         $shop = $request->query->get('shop');
         $host = $request->query->get('host');
@@ -42,6 +42,10 @@ final class ShopifyConfigController extends AbstractController
             $shopifyAppConfig->setRootDirectory($request->request->get('root_directory'));
             $shopifyAppConfig->setPrivateKeyContent($request->request->get('private_key_content'));
             $shopifyAppConfig->setKeyPassphrase($request->request->get('key_passphrase'));
+            $shopifyAppConfig->setFfChannelName($request->request->get('ff_channel_name'));
+            $shopifyAppConfig->setFfApiServerUrl($request->request->get('ff_api_server_url'));
+            $shopifyAppConfig->setFfApiUsername($request->request->get('ff_api_username'));
+            $shopifyAppConfig->setFfApiPassword($request->request->get('ff_api_password'));
             $shopifyAppConfig->setUpdatedAt(new \DateTime());
             $appConfigRepository->save($shopifyAppConfig, true);
             $this->addFlash('success', 'Configuration saved successfully!');

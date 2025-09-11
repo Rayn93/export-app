@@ -41,6 +41,18 @@ class ShopifyAppConfig
     #[ORM\Column(length: 255)]
     private ?string $keyPassphrase = null;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $ffChannelName = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $ffApiServerUrl = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $ffApiUsername = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $ffApiPassword = null;
+
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updated_at = null;
 
@@ -55,6 +67,10 @@ class ShopifyAppConfig
         $config->setRootDirectory('');
         $config->setPrivateKeyContent('');
         $config->setKeyPassphrase('');
+        $config->setFfChannelName('');
+        $config->setFfApiServerUrl('');
+        $config->setFfApiUsername('');
+        $config->setFfApiPassword('');
         $config->setUpdatedAt(new \DateTime());
 
         return $config;
@@ -149,6 +165,7 @@ class ShopifyAppConfig
         return $this;
     }
 
+    // keyPassphrase for SFTP private key or password for FTP
     public function getKeyPassphrase(): ?string
     {
         return $this->keyPassphrase;
@@ -157,6 +174,54 @@ class ShopifyAppConfig
     public function setKeyPassphrase(string $keyPassphrase): static
     {
         $this->keyPassphrase = $keyPassphrase;
+
+        return $this;
+    }
+
+    public function getFfChannelName(): ?string
+    {
+        return $this->ffChannelName;
+    }
+
+    public function setFfChannelName(?string $channelName): static
+    {
+        $this->ffChannelName = $channelName;
+
+        return $this;
+    }
+
+    public function getFfApiServerUrl(): ?string
+    {
+        return $this->ffApiServerUrl;
+    }
+
+    public function setFfApiServerUrl(?string $serverUrl): static
+    {
+        $this->ffApiServerUrl = $serverUrl;
+
+        return $this;
+    }
+
+    public function getFfApiUsername(): ?string
+    {
+        return $this->ffApiUsername;
+    }
+
+    public function setFfApiUsername(?string $apiUsername): static
+    {
+        $this->ffApiUsername = $apiUsername;
+
+        return $this;
+    }
+
+    public function getFfApiPassword(): ?string
+    {
+        return $this->ffApiPassword;
+    }
+
+    public function setFfApiPassword(?string $apiPassword): static
+    {
+        $this->ffApiPassword = $apiPassword;
 
         return $this;
     }

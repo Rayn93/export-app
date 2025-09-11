@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\ShopifyAppConfig;
+use App\Service\Utils\PasswordEncryptor;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -12,13 +13,21 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class ShopifyAppConfigRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private PasswordEncryptor $passwordEncryptor;
+
+    public function __construct(ManagerRegistry $registry, PasswordEncryptor $passwordEncryptor)
     {
         parent::__construct($registry, ShopifyAppConfig::class);
+
+        $this->passwordEncryptor = $passwordEncryptor;
     }
 
     public function save(ShopifyAppConfig $entity, bool $flush = false): void
     {
+        if (!empty($entity->getFfApiPassword())) {
+            $entity->setFfApiPassword($this->passwordEncryptor->encrypt($entity->getFfApiPassword()));
+        }
+
         $this->getEntityManager()->persist($entity);
 
         if ($flush) {
