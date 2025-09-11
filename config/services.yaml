@@ -16,7 +16,7 @@ services:
         bind:
             $clientSecret: '%env(SHOPIFY_CLIENT_SECRET)%'
             $clientId: '%env(SHOPIFY_CLIENT_ID)%'
-            $logger: '@monolog.logger'
+            $factfinderLogger: '@monolog.logger.factfinder'
             $kernelProjectDir: '%kernel.project_dir%'
             $secretKey: '%env(APP_SECRET)%'
 

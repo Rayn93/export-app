@@ -7,7 +7,6 @@ use App\Config\Enum\Protocol;
 use App\Repository\ShopifyAppConfigRepository;
 use App\Service\Export\FactFinderExporter;
 use App\Service\ShopifyRequestValidator;
-use App\Service\ShopifyService;
 use App\Service\Upload\UploadService;
 use League\Csv\CannotInsertRecord;
 use League\Csv\Exception;
@@ -20,8 +19,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ExportController extends AbstractController
 {
     public function __construct(
-        private readonly ShopifyService $shopifyService,
-        private readonly LoggerInterface $logger,
+        private readonly LoggerInterface $factfinderLogger,
         private readonly FactFinderExporter $factFinderExporter,
     ) {
     }
@@ -53,6 +51,8 @@ class ExportController extends AbstractController
 
         if (!$shopifyAppConfig) {
             $this->addFlash('error', 'Configuration not found for this shop.');
+            $this->factfinderLogger->error("Executed export without configuration for: $shop.");
+
             return $this->redirectToRoute('app_shopify_config', $request->query->all());
         }
 
@@ -79,6 +79,7 @@ class ExportController extends AbstractController
             $this->addFlash('success', 'Products exported and uploaded to FTP/SFTP successfully.');
         } else {
             $this->addFlash('error', 'Failed to upload file to FTP/SFTP.');
+            $this->factfinderLogger->error("Failed to upload file to FTP/SFTP for shop: $shop.");
         }
 
         return $this->redirectToRoute('app_shopify_config', $request->query->all());

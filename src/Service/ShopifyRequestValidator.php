@@ -13,7 +13,7 @@ readonly class ShopifyRequestValidator
     public function __construct(
         private string          $clientSecret,
         private string          $clientId,
-        private LoggerInterface $logger
+        private LoggerInterface $factfinderLogger,
     ) {
     }
 
@@ -44,12 +44,12 @@ readonly class ShopifyRequestValidator
         $query = $request->query->all();
 
         if (!$shop) {
-            $this->logger->error('Shop parameter is missing');
+            $this->factfinderLogger->error('Shop parameter is missing');
             return false;
         }
 
         if (!$this->verifyHmac($query, $hmac)) {
-            $this->logger->error('HMAC verification failed', [
+            $this->factfinderLogger->error('HMAC verification failed', [
                 'query' => $query,
                 'hmac'  => $hmac,
             ]);
@@ -83,12 +83,12 @@ readonly class ShopifyRequestValidator
     private function verifySessionToken(string $token, ?string $shop): bool
     {
         try {
-            $this->logger->info('Verifying session token', ['shop' => $shop]);
+            $this->factfinderLogger->info('Verifying session token', ['shop' => $shop]);
             $decodedToken = JWT::decode($token, new Key($this->clientSecret, 'HS256'));
-            $this->logger->info('Token decoded', ['decodedToken' => (array) $decodedToken]);
+            $this->factfinderLogger->info('Token decoded', ['decodedToken' => (array) $decodedToken]);
 
             if ($decodedToken->aud !== $this->clientId) {
-                $this->logger->error('Audience mismatch', [
+                $this->factfinderLogger->error('Audience mismatch', [
                     'expected' => $this->clientId,
                     'actual' => $decodedToken->aud,
                 ]);
@@ -96,7 +96,7 @@ readonly class ShopifyRequestValidator
             }
 
             if ($shop && $decodedToken->dest !== "https://{$shop}") {
-                $this->logger->error('Destination mismatch', [
+                $this->factfinderLogger->error('Destination mismatch', [
                     'expected' => "https://{$shop}",
                     'actual'   => $decodedToken->dest,
                 ]);
@@ -104,7 +104,7 @@ readonly class ShopifyRequestValidator
             }
 
             if ($decodedToken->exp < time()) {
-                $this->logger->error('Token expired', [
+                $this->factfinderLogger->error('Token expired', [
                     'exp' => $decodedToken->exp,
                     'currentTime' => time(),
                 ]);
@@ -113,7 +113,7 @@ readonly class ShopifyRequestValidator
 
             return true;
         } catch (\Exception $e) {
-            $this->logger->error('Session token verification failed', [
+            $this->factfinderLogger->error('Session token verification failed', [
                 'error' => $e->getMessage(),
                 'token' => $token,
                 'shop'  => $shop,

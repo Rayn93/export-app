@@ -52,7 +52,7 @@ class UploadService
 
             $stream = fopen($localFilePath, 'r');
             if ($stream === false) {
-                throw new \RuntimeException("Nie udało się otworzyć pliku: $localFilePath");
+                throw new \RuntimeException("Could not create a file in: $localFilePath");
             }
 
             $filesystem->writeStream($filename, $stream);
