@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Repository\ShopifyAppConfigRepository;
+use App\Service\Communication\PushImportService;
 use App\Service\Export\FactFinderExporter;
 use App\Service\ShopifyRequestValidator;
 use App\Service\Upload\UploadService;
@@ -34,6 +35,7 @@ class ExportController extends AbstractController
         ShopifyAppConfigRepository $shopifyAppConfigRepository,
         ShopifyRequestValidator $validator,
         UploadService $uploadService,
+        PushImportService $pushImportService,
     ): Response {
         if (!$validator->validateShopifyRequest($request)) {
             return new Response('Unauthorized', 401);
@@ -67,11 +69,19 @@ class ExportController extends AbstractController
         $file = $this->factFinderExporter->export($shop);
         $filename = "export.productData.$ffChannelName.csv";
         $success = $uploadService->uploadForShopifyConfig($shopifyAppConfig, $file, $filename);
+        $pushImportService->execute($shopifyAppConfig);
+
+        try {
+            $pushImportService->execute($shopifyAppConfig);
+        } catch (\Exception $e) {
+            $this->addFlash('error', $e->getMessage());
+            $this->factfinderLogger->error($e->getMessage(), ['shop' => $shop]);
+        }
 
         if ($success) {
-            $this->addFlash('success', 'Products exported and uploaded to FTP/SFTP successfully.');
+            $this->addFlash('success', 'Products exported and uploaded to server successfully.');
         } else {
-            $this->addFlash('error', 'Failed to upload file to FTP/SFTP.');
+            $this->addFlash('error', 'Failed to upload file to server. Check upload settings.');
             $this->factfinderLogger->error("Failed to upload file to FTP/SFTP for shop: $shop.");
         }
 

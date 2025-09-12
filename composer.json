@@ -26,7 +26,8 @@
         "symfony/monolog-bundle": "^3.10",
         "symfony/runtime": "7.2.*",
         "symfony/twig-bundle": "7.2.*",
-        "symfony/yaml": "7.2.*"
+        "symfony/yaml": "7.2.*",
+        "omikron/factfinder-communication-sdk": "^0.9.9"
     },
     "config": {
         "allow-plugins": {
