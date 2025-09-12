@@ -18,15 +18,15 @@
         "league/flysystem-ftp": "^3.29",
         "league/flysystem-sftp-v3": "^3.29",
         "league/oauth2-client": "^2.8",
-        "symfony/console": "7.2.*",
-        "symfony/dotenv": "7.2.*",
+        "symfony/console": "7.3.*",
+        "symfony/dotenv": "7.3.*",
         "symfony/flex": "^2",
-        "symfony/framework-bundle": "7.2.*",
-        "symfony/http-client": "7.2.*",
+        "symfony/framework-bundle": "7.3.*",
+        "symfony/http-client": "7.3.*",
         "symfony/monolog-bundle": "^3.10",
-        "symfony/runtime": "7.2.*",
-        "symfony/twig-bundle": "7.2.*",
-        "symfony/yaml": "7.2.*",
+        "symfony/runtime": "7.3.*",
+        "symfony/twig-bundle": "7.3.*",
+        "symfony/yaml": "7.3.*",
         "omikron/factfinder-communication-sdk": "^0.9.9"
     },
     "config": {
@@ -76,12 +76,12 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "7.2.*"
+            "require": "7.3.*"
         }
     },
     "require-dev": {
         "symfony/maker-bundle": "^1.62",
-        "symfony/stopwatch": "7.2.*",
-        "symfony/web-profiler-bundle": "7.2.*"
+        "symfony/stopwatch": "7.3.*",
+        "symfony/web-profiler-bundle": "7.3.*"
     }
 }
