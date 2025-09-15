@@ -26,7 +26,7 @@ class UploadService
                 $filename,
                 $shopifyConfig->getServerUrl(),
                 $shopifyConfig->getUsername(),
-                $shopifyConfig->getPrivateKeyContent(),
+                trim($shopifyConfig->getPrivateKeyContent()),
                 $shopifyConfig->getKeyPassphrase(),
                 $shopifyConfig->getPort() ?: 21,
                 $shopifyConfig->getRootDirectory() ?: '/',
