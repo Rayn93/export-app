@@ -44,7 +44,7 @@ final readonly class ShopifyExportProductsHandler
             }
 
             $this->bus->dispatch(new ShopifyUploadFileMessage($shop, $configId, $tempFile));
-            $this->factfinderLogger->info('Upload file succeeded', ['shop' => $shop]);
+            $this->factfinderLogger->info('Shopify export file created successfully', ['shop' => $shop]);
         } catch (\Throwable $e) {
             $this->factfinderLogger->error('Export file cannot be created. Error: ' . $e->getMessage(), [
                 'shop' => $shop,

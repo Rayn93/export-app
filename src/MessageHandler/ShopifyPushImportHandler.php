@@ -3,11 +3,13 @@ declare(strict_types=1);
 
 namespace App\MessageHandler;
 
+use App\Message\SendExportMailNotificationMessage;
 use App\Message\ShopifyPushImportMessage;
 use App\Repository\ShopifyAppConfigRepository;
 use App\Service\Communication\PushImportService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsMessageHandler]
 final readonly class ShopifyPushImportHandler
@@ -15,6 +17,7 @@ final readonly class ShopifyPushImportHandler
     public function __construct(
         private ShopifyAppConfigRepository $shopifyAppConfigRepository,
         private PushImportService $pushImportService,
+        private MessageBusInterface $bus,
         private LoggerInterface $factfinderLogger,
     ) {}
 
@@ -33,6 +36,7 @@ final readonly class ShopifyPushImportHandler
         try {
             $this->pushImportService->execute($config);
             $this->factfinderLogger->info('Push import executed successfully', ['shop' => $shop]);
+            $this->bus->dispatch(new SendExportMailNotificationMessage('robert.saternus@gmail.com','success'));
         } catch (\Throwable $e) {
             $this->factfinderLogger->error('Push import failed: ' . $e->getMessage(), [
                 'shop' => $shop,

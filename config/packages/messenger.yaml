@@ -19,6 +19,7 @@ framework:
             'App\Message\ShopifyExportProductsMessage': async
             'App\Message\ShopifyUploadFileMessage': async
             'App\Message\ShopifyPushImportMessage': async
+            'App\Message\SendExportMailNotificationMessage': async
 
         failure_transport: failed
 
