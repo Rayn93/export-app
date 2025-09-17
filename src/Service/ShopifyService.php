@@ -60,8 +60,6 @@ class ShopifyService
             $edges = $productsConnection['edges'] ?? [];
             $products = array_map(static fn(array $edge) => $edge['node'], $edges);
 
-
-//            dump($products);die();
             if ($products) {
                 yield $products;
             }
@@ -76,7 +74,7 @@ class ShopifyService
     {
         return <<<'GQL'
 query Products($first: Int!, $after: String) {
-  products(first: $first, after: $after) {
+  products(first: $first, after: $after, query: "status:ACTIVE") {
     pageInfo { hasNextPage endCursor }
     edges {
       node {
