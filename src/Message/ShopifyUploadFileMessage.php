@@ -9,7 +9,9 @@ final readonly class ShopifyUploadFileMessage
         private string $shopDomain,
         private int $shopifyAppConfigId,
         private string $filePath,
-    ) {}
+        private string $mailForFailureNotification
+    ) {
+    }
 
     public function getShopDomain(): string
     {
@@ -24,5 +26,10 @@ final readonly class ShopifyUploadFileMessage
     public function getFilePath(): string
     {
         return $this->filePath;
+    }
+
+    public function getMailForFailureNotification(): string
+    {
+        return $this->mailForFailureNotification;
     }
 }

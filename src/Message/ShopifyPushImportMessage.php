@@ -7,8 +7,10 @@ final readonly class ShopifyPushImportMessage
 {
     public function __construct(
         private string $shopDomain,
-        private int $shopifyAppConfigId
-    ) {}
+        private int $shopifyAppConfigId,
+        private string $mailForFailureNotification
+    ) {
+    }
 
     public function getShopDomain(): string
     {

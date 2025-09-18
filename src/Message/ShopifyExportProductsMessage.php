@@ -3,15 +3,13 @@ declare(strict_types=1);
 
 namespace App\Message;
 
-final class ShopifyExportProductsMessage
+final readonly class ShopifyExportProductsMessage
 {
-    private string $shopDomain;
-    private int $shopifyAppConfigId;
-
-    public function __construct(string $shopDomain, int $shopifyAppConfigId)
-    {
-        $this->shopDomain = $shopDomain;
-        $this->shopifyAppConfigId = $shopifyAppConfigId;
+    public function __construct(
+        private string $shopDomain,
+        private int $shopifyAppConfigId,
+        private string $mailForFailureNotification
+    ) {
     }
 
     public function getShopDomain(): string
@@ -22,5 +20,10 @@ final class ShopifyExportProductsMessage
     public function getShopifyAppConfigId(): int
     {
         return $this->shopifyAppConfigId;
+    }
+
+    public function getMailForFailureNotification(): string
+    {
+        return $this->mailForFailureNotification;
     }
 }

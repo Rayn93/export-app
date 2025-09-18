@@ -69,8 +69,6 @@ readonly class ShopifyRequestValidator
         unset($params['hmac']);
 
         ksort($params);
-
-        // Shopify liczy HMAC na URLEncoded params
         $queryString = urldecode(http_build_query($params));
         $calculatedHmac = hash_hmac('sha256', $queryString, $this->clientSecret);
 

@@ -44,7 +44,7 @@ final readonly class ShopifyUploadFileHandler
                     'shop' => $shop,
                     'filename' => $filename,
                 ]);
-                $this->bus->dispatch(new ShopifyPushImportMessage($shop, $configId));
+                $this->bus->dispatch(new ShopifyPushImportMessage($shop, $configId, 'robert.saternus@gmail.com'));
 
             } else {
                 $this->factfinderLogger->error('Upload file failed', ['shop' => $shop]);

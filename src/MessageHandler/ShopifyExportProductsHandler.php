@@ -43,7 +43,7 @@ final readonly class ShopifyExportProductsHandler
                 throw new RuntimeException('Exported file too small, problem with product export');
             }
 
-            $this->bus->dispatch(new ShopifyUploadFileMessage($shop, $configId, $tempFile));
+            $this->bus->dispatch(new ShopifyUploadFileMessage($shop, $configId, $tempFile, 'robert.saternus@gmail.com'));
             $this->factfinderLogger->info('Shopify export file created successfully', ['shop' => $shop]);
         } catch (\Throwable $e) {
             $this->factfinderLogger->error('Export file cannot be created. Error: ' . $e->getMessage(), [
