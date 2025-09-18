@@ -27,7 +27,7 @@ class ShopifyService
         }
 
         $accessToken = $shopifyToken->getAccessToken();
-        $endpoint = "https://{$shop}invalid/admin/api/2025-07/graphql.json";
+        $endpoint = "https://{$shop}/admin/api/2025-07/graphql.json";
         $cursor = null;
 
         do {

@@ -28,13 +28,10 @@ final readonly class ExportFailureSubscriber implements EventSubscriberInterface
 
     public function onMessageFailed(WorkerMessageFailedEvent $event): void
     {
-        $this->factfinderLogger->info('Handling failed message for export failure listener');
-
         $envelope = $event->getEnvelope();
         $message  = $envelope->getMessage();
 
         if (!method_exists($message, 'getMailForFailureNotification')) {
-            $this->factfinderLogger->info('Message has no getMailForFailureNotification() method');
             return;
         }
 

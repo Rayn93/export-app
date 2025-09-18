@@ -53,6 +53,9 @@ class ShopifyAppConfig
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $ffApiPassword = null;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $notificationEmail = null;
+
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updated_at = null;
 
@@ -71,6 +74,7 @@ class ShopifyAppConfig
         $config->setFfApiServerUrl('');
         $config->setFfApiUsername('');
         $config->setFfApiPassword('');
+        $config->setNotificationEmail('');
         $config->setUpdatedAt(new \DateTime());
 
         return $config;
@@ -222,6 +226,18 @@ class ShopifyAppConfig
     public function setFfApiPassword(?string $apiPassword): static
     {
         $this->ffApiPassword = $apiPassword;
+
+        return $this;
+    }
+
+    public function getNotificationEmail(): ?string
+    {
+        return $this->notificationEmail;
+    }
+
+    public function setNotificationEmail(?string $notificationEmail): static
+    {
+        $this->notificationEmail = $notificationEmail;
 
         return $this;
     }

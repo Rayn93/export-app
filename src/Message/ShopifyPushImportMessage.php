@@ -8,7 +8,7 @@ final readonly class ShopifyPushImportMessage
     public function __construct(
         private string $shopDomain,
         private int $shopifyAppConfigId,
-        private string $mailForFailureNotification
+        private ?string $mailForFailureNotification
     ) {
     }
 
@@ -20,5 +20,10 @@ final readonly class ShopifyPushImportMessage
     public function getShopifyAppConfigId(): int
     {
         return $this->shopifyAppConfigId;
+    }
+
+    public function getMailForFailureNotification(): ?string
+    {
+        return $this->mailForFailureNotification;
     }
 }

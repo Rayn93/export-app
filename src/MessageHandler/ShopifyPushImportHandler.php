@@ -36,7 +36,7 @@ final readonly class ShopifyPushImportHandler
         try {
             $this->pushImportService->execute($config);
             $this->factfinderLogger->info('Push import executed successfully', ['shop' => $shop]);
-            $this->bus->dispatch(new SendExportMailNotificationMessage('robert.saternus@gmail.com','success'));
+            $this->bus->dispatch(new SendExportMailNotificationMessage($message->getMailForFailureNotification(),'success'));
         } catch (\Throwable $e) {
             $this->factfinderLogger->error('Push import failed: ' . $e->getMessage(), [
                 'shop' => $shop,

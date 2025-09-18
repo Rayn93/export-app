@@ -52,6 +52,7 @@ final class ShopifyConfigController extends AbstractController
             $shopifyAppConfig->setFfApiServerUrl($request->request->get('ff_api_server_url'));
             $shopifyAppConfig->setFfApiUsername($request->request->get('ff_api_username'));
             $shopifyAppConfig->setFfApiPassword(!empty($request->request->get('ff_api_password')) ? $passwordEncryptor->encrypt($request->request->get('ff_api_password')) : '');
+            $shopifyAppConfig->setNotificationEmail($request->request->get('notification_email'));
             $shopifyAppConfig->setUpdatedAt(new \DateTime());
             $appConfigRepository->save($shopifyAppConfig, true);
             $this->addFlash('success', 'Configuration saved successfully!');

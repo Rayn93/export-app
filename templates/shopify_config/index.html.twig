@@ -44,7 +44,25 @@
                                         <input id="ff_channel_name" name="ff_channel_name" type="text"
                                                class="Polaris-TextField__Input"
                                                value="{{ config.ffChannelName ?? '' }}"
-                                               placeholder="MyChannel">
+                                               placeholder="MyChannel" required>
+                                        <div class="Polaris-TextField__Backdrop"></div>
+                                    </div>
+                                </div>
+
+                                {# Notification email #}
+                                <div class="Polaris-FormLayout__Item">
+                                    <div class="Polaris-Labelled__LabelWrapper">
+                                        <div class="Polaris-Label">
+                                            <label for="notification_email" class="Polaris-Label__Text">
+                                                Notification Email (set if you want to receive success or error export notifications)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="Polaris-TextField">
+                                        <input id="notification_email" name="notification_email" type="email"
+                                               class="Polaris-TextField__Input"
+                                               value="{{ config.notificationEmail ?? '' }}"
+                                               placeholder="example@example.com">
                                         <div class="Polaris-TextField__Backdrop"></div>
                                     </div>
                                 </div>

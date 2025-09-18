@@ -8,7 +8,7 @@ final readonly class ShopifyExportProductsMessage
     public function __construct(
         private string $shopDomain,
         private int $shopifyAppConfigId,
-        private string $mailForFailureNotification
+        private ?string $mailForFailureNotification
     ) {
     }
 
@@ -22,7 +22,7 @@ final readonly class ShopifyExportProductsMessage
         return $this->shopifyAppConfigId;
     }
 
-    public function getMailForFailureNotification(): string
+    public function getMailForFailureNotification(): ?string
     {
         return $this->mailForFailureNotification;
     }
