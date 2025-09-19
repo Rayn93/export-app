@@ -14,7 +14,7 @@ use Omikron\FactFinder\Communication\Resource\NG\ImportAdapter;
 readonly class PushImportService
 {
     const IMPORT_TYPES = ['search', 'recommendation', 'suggest'];
-    public function __construct(private PasswordEncryptor $passwordEncryptor)
+    public function __construct(private PasswordEncryptor $passwordEncryptor, private ClientBuilder $clientBuilder)
     {
     }
 
@@ -44,7 +44,7 @@ readonly class PushImportService
 
     private function getImportAdapter(string $apiServerUrl, string $apiUsername, string $apiPassword): ImportAdapter
     {
-        $client = (new ClientBuilder())
+        $client = $this->clientBuilder
             ->withServerUrl($apiServerUrl)
             ->withCredentials(new Credentials($apiUsername, $this->passwordEncryptor->decrypt($apiPassword)))
             ->build();

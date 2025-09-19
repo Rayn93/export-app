@@ -6,13 +6,11 @@ namespace App\Service\Upload;
 use App\Config\Enum\Protocol;
 use App\Entity\ShopifyAppConfig;
 use App\Service\Utils\PasswordEncryptor;
-use League\Csv\Exception;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Ftp\FtpAdapter;
 use League\Flysystem\Ftp\FtpConnectionOptions;
 use League\Flysystem\PhpseclibV3\SftpAdapter;
 use League\Flysystem\PhpseclibV3\SftpConnectionProvider;
-
 
 class UploadService
 {
@@ -45,6 +43,7 @@ class UploadService
         string $path,
         bool $useSftp
     ): bool {
+
         try {
             if ($useSftp) {
                 $adapter = new SftpAdapter(
@@ -54,6 +53,7 @@ class UploadService
                         'username'   => $username,
                         'privateKey' => $privateKey,
                         'passphrase' => $this->passwordEncryptor->decrypt($passphrase),
+                        'timeout'    => 25,
                     ]),
                     $path
                 );
@@ -65,6 +65,7 @@ class UploadService
                         'username' => $username,
                         'password' => $this->passwordEncryptor->decrypt($passphrase),
                         'root'     => $path,
+                        'timeout'  => 25,
                     ])
                 );
             }
@@ -80,7 +81,7 @@ class UploadService
             fclose($stream);
 
             return true;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return false;
         }
     }

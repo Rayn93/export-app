@@ -270,9 +270,15 @@
                                 </button>
                             </form>
 
-                            <form action="{{ path('app_shopify_test_ftp_connection', app.request.query.all) }}" method="post" style="display: inline-block">
-                                <button type="submit" class="Polaris-Button Polaris-Button--primary Polaris-Button--sizeLarge">
-                                    Test FTP Connection
+                            <form action="{{ path('shopify_test_ftp_connection', app.request.query.all) }}" method="post" style="display: inline-block;">
+                                <button id="test-ftp-connection-btn" class="Polaris-Button Polaris-Button--primary Polaris-Button--sizeLarge" type="submit" style="width: 175px;">
+                                    <span class="Polaris-Button__Text">Test FTP connection</span>
+                                </button>
+                            </form>
+
+                            <form action="{{ path('shopify_test_api_connection', app.request.query.all) }}" method="post" style="display: inline-block;">
+                                <button id="test-api-connection-btn" class="Polaris-Button Polaris-Button--primary Polaris-Button--sizeLarge" type="submit" style="width: 192px;">
+                                    <span class="Polaris-Button__Text">Test Import connection</span>
                                 </button>
                             </form>
                         </div>
@@ -281,4 +287,22 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.getElementById('test-ftp-connection-btn').addEventListener('click', function() {
+            this.querySelector('.Polaris-Button__Text').textContent = 'Testing FTP ...';
+            const button = this;
+            setTimeout(() => {
+                button.disabled = true;
+            }, 1000); //
+        });
+
+        document.getElementById('test-api-connection-btn').addEventListener('click', function() {
+            this.querySelector('.Polaris-Button__Text').textContent = 'Testing Import ...';
+            const button = this;
+            setTimeout(() => {
+                button.disabled = true;
+            }, 1000); //
+        });
+    </script>
 {% endblock %}
