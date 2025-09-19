@@ -5,7 +5,6 @@ namespace App\Controller;
 
 use App\Message\ShopifyExportProductsMessage;
 use App\Repository\ShopifyAppConfigRepository;
-use App\Service\Export\FactFinderExporter;
 use App\Service\ShopifyRequestValidator;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

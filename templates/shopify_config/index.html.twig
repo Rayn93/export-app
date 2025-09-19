@@ -261,13 +261,18 @@
                         </div>
                     </form>
 
-                    {# Export Button #}
+                    {# Action Buttons #}
                     <div class="Polaris-Card">
                         <div class="Polaris-Card__Section">
-                            <form action="{{ path('shopify_export_products', app.request.query.all) }}" method="post">
-                                <button type="submit"
-                                        class="Polaris-Button Polaris-Button--primary Polaris-Button--sizeLarge">
-                                    Export Products to CSV
+                            <form action="{{ path('shopify_export_products', app.request.query.all) }}" method="post" style="display: inline-block">
+                                <button type="submit" class="Polaris-Button Polaris-Button--primary Polaris-Button--sizeLarge">
+                                    Export Products
+                                </button>
+                            </form>
+
+                            <form action="{{ path('app_shopify_test_ftp_connection', app.request.query.all) }}" method="post" style="display: inline-block">
+                                <button type="submit" class="Polaris-Button Polaris-Button--primary Polaris-Button--sizeLarge">
+                                    Test FTP Connection
                                 </button>
                             </form>
                         </div>
