@@ -5,7 +5,6 @@ namespace App\Controller;
 
 use App\Message\ShopifyExportProductsMessage;
 use App\Repository\ShopifyAppConfigRepository;
-use App\Service\ShopifyRequestValidator;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,14 +21,10 @@ class ExportController extends AbstractController
     public function exportProducts(
         Request $request,
         ShopifyAppConfigRepository $shopifyAppConfigRepository,
-        ShopifyRequestValidator $validator,
         MessageBusInterface $bus,
     ): Response {
-        if (!$validator->validateShopifyRequest($request)) {
-            return new Response('Unauthorized', Response::HTTP_UNAUTHORIZED);
-        }
-
         $shop = $request->query->get('shop');
+
         if (!$shop) {
             return new Response('Missing shop parameter', 400);
         }

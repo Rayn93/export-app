@@ -5,7 +5,6 @@ namespace App\Controller;
 
 use App\Entity\ShopifyAppConfig;
 use App\Repository\ShopifyAppConfigRepository;
-use App\Service\ShopifyRequestValidator;
 use App\Service\Upload\UploadService;
 use App\Service\Utils\PasswordEncryptor;
 use Omikron\FactFinder\Communication\Client\ClientBuilder;
@@ -16,10 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 class TestConnectionController extends AbstractController
 {
-    public function __construct(
-        private readonly ShopifyRequestValidator $validator,
-        private readonly ShopifyAppConfigRepository $shopifyAppConfigRepository
-    ) {
+    public function __construct(private readonly ShopifyAppConfigRepository $shopifyAppConfigRepository)
+    {
     }
 
     #[Route('/shopify/config/test-ftp-connection', name: 'shopify_test_ftp_connection', methods: ['POST'])]
@@ -82,10 +79,6 @@ class TestConnectionController extends AbstractController
 
     private function verifyShopifyRequestAndGetConfig(Request $request): ShopifyAppConfig|Response
     {
-        if (!$this->validator->validateShopifyRequest($request)) {
-            return new Response('Unauthorized', Response::HTTP_UNAUTHORIZED);
-        }
-
         $shop = $request->query->get('shop');
 
         if (!$shop) {

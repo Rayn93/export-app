@@ -6,7 +6,6 @@ namespace App\Controller;
 use App\Config\Enum\Protocol;
 use App\Entity\ShopifyAppConfig;
 use App\Repository\ShopifyAppConfigRepository;
-use App\Service\ShopifyRequestValidator;
 use App\Service\Utils\PasswordEncryptor;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,14 +18,9 @@ final class ShopifyConfigController extends AbstractController
     public function index(
         Request $request,
         ShopifyAppConfigRepository $appConfigRepository,
-        ShopifyRequestValidator $validator,
         PasswordEncryptor $passwordEncryptor
     ): Response
     {
-        if (!$validator->validateShopifyRequest($request)) {
-            return new Response('Unauthorized', Response::HTTP_UNAUTHORIZED);
-        }
-
         $shop = $request->query->get('shop');
         $host = $request->query->get('host');
 

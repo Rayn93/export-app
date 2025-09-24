@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Repository\ShopifyAppConfigRepository;
-use App\Service\ShopifyRequestValidator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,19 +11,13 @@ use Symfony\Component\Routing\Annotation\Route;
 
 final class ShopifyHomeController extends AbstractController
 {
-    public function __construct(
-        private readonly ShopifyAppConfigRepository $shopifyAppConfigRepository,
-        private readonly ShopifyRequestValidator $validator
-    ) {
+    public function __construct(private readonly ShopifyAppConfigRepository $shopifyAppConfigRepository)
+    {
     }
 
     #[Route('/shopify', name: 'shopify_home')]
     public function index(Request $request): Response
     {
-        if (!$this->validator->validateShopifyRequest($request)) {
-            return new Response('Unauthorized', Response::HTTP_UNAUTHORIZED);
-        }
-
         $shopDomain = $request->query->get('shop');
 
         if (!$shopDomain) {
