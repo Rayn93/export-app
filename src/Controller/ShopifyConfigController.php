@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 final class ShopifyConfigController extends AbstractController
 {
-    #[Route('/shopify/config', name: 'app_shopify_config')]
+    #[Route('/shopify/config', name: 'shopify_config')]
     public function index(
         Request $request,
         ShopifyAppConfigRepository $appConfigRepository,
@@ -24,7 +24,7 @@ final class ShopifyConfigController extends AbstractController
     ): Response
     {
         if (!$validator->validateShopifyRequest($request)) {
-            return new Response('Unauthorized', 401);
+            return new Response('Unauthorized', Response::HTTP_UNAUTHORIZED);
         }
 
         $shop = $request->query->get('shop');
@@ -57,7 +57,7 @@ final class ShopifyConfigController extends AbstractController
             $appConfigRepository->save($shopifyAppConfig, true);
             $this->addFlash('success', 'Configuration saved successfully!');
 
-            return $this->redirectToRoute('app_shopify_config', $request->query->all());
+            return $this->redirectToRoute('shopify_config', $request->query->all());
         }
 
         return $this->render('shopify_config/index.html.twig', [

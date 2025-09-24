@@ -5,6 +5,7 @@ namespace App\Controller;
 
 use App\Entity\ShopifyOauthToken;
 use App\Repository\ShopifyOauthTokenRepository;
+use App\Service\ShopifyRequestValidator;
 use League\OAuth2\Client\Provider\GenericProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,13 +16,19 @@ use Symfony\Component\Routing\Annotation\Route;
 class AuthController extends AbstractController
 {
 
-    public function __construct(private readonly ShopifyOauthTokenRepository $shopifyTokenRepository)
-    {
+    public function __construct(
+        private readonly ShopifyOauthTokenRepository $shopifyTokenRepository,
+        private readonly ShopifyRequestValidator $validator
+    ) {
     }
 
     #[Route('/shopify/auth/install', name: 'shopify_install')]
     public function install(Request $request, SessionInterface $session): Response
     {
+        if (!$this->validator->validateShopifyRequest($request)) {
+            return new Response('Unauthorized', Response::HTTP_UNAUTHORIZED);
+        }
+
         $shop = $request->query->get('shop');
 
         if (!$shop) {
@@ -47,6 +54,10 @@ class AuthController extends AbstractController
     #[Route('/shopify/auth/callback', name: 'shopify_callback')]
     public function callback(Request $request, SessionInterface $session): Response
     {
+        if (!$this->validator->validateShopifyRequest($request)) {
+            return new Response('Unauthorized', Response::HTTP_UNAUTHORIZED);
+        }
+
         $shop = $request->query->get('shop');
         $code = $request->query->get('code');
         $state = $request->query->get('state');
@@ -78,6 +89,6 @@ class AuthController extends AbstractController
         $shopifyToken->setUpdatedAt(new \DateTime());
         $this->shopifyTokenRepository->save($shopifyToken, true);
 
-        return $this->redirectToRoute('app_shopify_config', $request->query->all());
+        return $this->redirectToRoute('shopify_config', $request->query->all());
     }
 }

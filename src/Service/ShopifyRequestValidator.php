@@ -25,18 +25,16 @@ readonly class ShopifyRequestValidator
     public function validateShopifyRequest(Request $request): bool
     {
         $authHeader = $request->headers->get('Authorization');
+
         if ($authHeader && str_starts_with($authHeader, 'Bearer ')) {
             $token = substr($authHeader, 7);
+
             return $this->verifySessionToken($token, $request->query->get('shop'));
         }
 
-        // 2️⃣ W przeciwnym razie → HMAC
         return $this->validateHmacRequest($request);
     }
 
-    /**
-     * Walidacja dla OAuth callback i config page (HMAC).
-     */
     public function validateHmacRequest(Request $request): bool
     {
         $shop = $request->query->get('shop');
@@ -45,6 +43,7 @@ readonly class ShopifyRequestValidator
 
         if (!$shop) {
             $this->factfinderLogger->error('Shop parameter is missing');
+
             return false;
         }
 
@@ -53,6 +52,7 @@ readonly class ShopifyRequestValidator
                 'query' => $query,
                 'hmac'  => $hmac,
             ]);
+
             return false;
         }
 
@@ -67,7 +67,6 @@ readonly class ShopifyRequestValidator
 
         $params = $query;
         unset($params['hmac']);
-
         ksort($params);
         $queryString = urldecode(http_build_query($params));
         $calculatedHmac = hash_hmac('sha256', $queryString, $this->clientSecret);
@@ -75,9 +74,6 @@ readonly class ShopifyRequestValidator
         return hash_equals($hmac, $calculatedHmac);
     }
 
-    /**
-     * Walidacja dla App Bridge (JWT session token).
-     */
     private function verifySessionToken(string $token, ?string $shop): bool
     {
         try {
@@ -90,6 +86,7 @@ readonly class ShopifyRequestValidator
                     'expected' => $this->clientId,
                     'actual' => $decodedToken->aud,
                 ]);
+
                 return false;
             }
 
@@ -98,6 +95,7 @@ readonly class ShopifyRequestValidator
                     'expected' => "https://{$shop}",
                     'actual'   => $decodedToken->dest,
                 ]);
+
                 return false;
             }
 
@@ -106,6 +104,7 @@ readonly class ShopifyRequestValidator
                     'exp' => $decodedToken->exp,
                     'currentTime' => time(),
                 ]);
+
                 return false;
             }
 
@@ -116,6 +115,7 @@ readonly class ShopifyRequestValidator
                 'token' => $token,
                 'shop'  => $shop,
             ]);
+
             return false;
         }
     }

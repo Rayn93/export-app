@@ -41,7 +41,7 @@ class TestConnectionController extends AbstractController
             $this->addFlash('error', "FTP/SFTP Connection failed. Please check your FTP/SFTP credentials and data.");
         }
 
-        return $this->redirectToRoute('app_shopify_config', $request->query->all());
+        return $this->redirectToRoute('shopify_config', $request->query->all());
     }
 
     #[Route('/shopify/config/test-api-connection', name: 'shopify_test_api_connection', methods: ['POST'])]
@@ -77,13 +77,13 @@ class TestConnectionController extends AbstractController
             $this->addFlash('error', "Please provide API Import credentials to test the connection.");
         }
 
-        return $this->redirectToRoute('app_shopify_config', $request->query->all());
+        return $this->redirectToRoute('shopify_config', $request->query->all());
     }
 
     private function verifyShopifyRequestAndGetConfig(Request $request): ShopifyAppConfig|Response
     {
         if (!$this->validator->validateShopifyRequest($request)) {
-            return new Response('Unauthorized', 401);
+            return new Response('Unauthorized', Response::HTTP_UNAUTHORIZED);
         }
 
         $shop = $request->query->get('shop');

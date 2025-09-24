@@ -26,7 +26,7 @@ class ExportController extends AbstractController
         MessageBusInterface $bus,
     ): Response {
         if (!$validator->validateShopifyRequest($request)) {
-            return new Response('Unauthorized', 401);
+            return new Response('Unauthorized', Response::HTTP_UNAUTHORIZED);
         }
 
         $shop = $request->query->get('shop');
@@ -40,7 +40,7 @@ class ExportController extends AbstractController
             $this->addFlash('error', 'Configuration not found for this shop.');
             $this->factfinderLogger->error("Executed export without configuration for: $shop.");
 
-            return $this->redirectToRoute('app_shopify_config', $request->query->all());
+            return $this->redirectToRoute('shopify_config', $request->query->all());
         }
 
         $message = new ShopifyExportProductsMessage($shop, $shopifyAppConfig->getId(), $shopifyAppConfig->getNotificationEmail());
@@ -48,6 +48,6 @@ class ExportController extends AbstractController
         $this->addFlash('success', 'Export queued. You will be notified when finished.');
         $this->factfinderLogger->info('Export queued', ['shop' => $shop, 'configId' => $shopifyAppConfig->getId()]);
 
-        return $this->redirectToRoute('app_shopify_config', $request->query->all());
+        return $this->redirectToRoute('shopify_config', $request->query->all());
     }
 }
