@@ -38,7 +38,13 @@ class ExportController extends AbstractController
             return $this->redirectToRoute('shopify_config', $request->query->all());
         }
 
-        $message = new ShopifyExportProductsMessage($shop, $shopifyAppConfig->getId(), $shopifyAppConfig->getNotificationEmail());
+        $message = new ShopifyExportProductsMessage(
+            $shop,
+            $shopifyAppConfig->getId(),
+            $request->request->get('sales_channel', ''),
+            $request->request->get('locale', ''),
+            $shopifyAppConfig->getNotificationEmail()
+        );
         $bus->dispatch($message);
         $this->addFlash('success', 'Export queued. You will be notified when finished.');
         $this->factfinderLogger->info('Export queued', ['shop' => $shop, 'configId' => $shopifyAppConfig->getId()]);

@@ -9,16 +9,24 @@ final class ShopifyToFactFinderProductMapper
     {
         foreach ($shopifyProducts as $p) {
             $masterId     = (string) $p['legacyResourceId'];
-            $title        = $p['title'] ?? '';
+
+            // translacje produktu
+            $title        = $this->getTranslatedValue($p['translations'] ?? [], 'title', $p['title'] ?? '');
+            $description  = $this->getTranslatedValue($p['translations'] ?? [], 'body_html', $p['descriptionHtml'] ?? '');
             $brand        = $p['vendor'] ?? '';
+
             $deeplink     = $this->buildDeeplink($shopDomain, $p['handle'] ?? '', $p['onlineStoreUrl'] ?? null);
-            $description  = isset($p['descriptionHtml']) ? trim(strip_tags($p['descriptionHtml'])) : '';
+            $description  = trim(strip_tags($description));
             $imageUrl     = $p['images']['edges'][0]['node']['url'] ?? '';
             $categoryPath = $this->buildCategoryPathFromTaxonomy($p['category'] ?? null);
+
             $variantEdges = $p['variants']['edges'] ?? [];
             $variants     = array_map(static fn(array $e) => $e['node'], $variantEdges);
+
             $hasMultiple = count($variants) > 1;
             $masterPrice = isset($variants[0]['price']) ? (string)$variants[0]['price'] : '';
+
+            // master produkt
             $masterRow = [
                 'ProductNumber'    => $masterId,
                 'Master'           => $masterId,
@@ -34,10 +42,14 @@ final class ShopifyToFactFinderProductMapper
 
             yield $masterRow;
 
+            // warianty
             if ($hasMultiple) {
                 foreach ($variants as $v) {
                     $variantId = (string) $v['legacyResourceId'];
-                    $vTitle    = $v['title'] ?? '';
+
+                    // translacja wariantu (np. option1)
+                    $vTitle    = $this->getTranslatedValue($v['translations'] ?? [], 'option1', $v['title'] ?? '');
+
                     $name      = trim($title . ' ' . ($vTitle !== 'Default Title' ? $vTitle : ''));
                     $price     = isset($v['price']) ? (string)$v['price'] : '';
 
@@ -56,6 +68,16 @@ final class ShopifyToFactFinderProductMapper
                 }
             }
         }
+    }
+
+    private function getTranslatedValue(array $translations, string $key, ?string $fallback): ?string
+    {
+        foreach ($translations as $t) {
+            if (($t['key'] ?? null) === $key && !empty($t['value'])) {
+                return $t['value'];
+            }
+        }
+        return $fallback;
     }
 
     private function buildCategoryPathFromTaxonomy(?array $category): string

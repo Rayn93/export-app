@@ -1,24 +1,26 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Service\Shopify;
 
 use App\Repository\ShopifyOauthTokenRepository;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class ShopifyService
+readonly class ShopifyExportService
 {
     public function __construct(
-        private readonly HttpClientInterface         $client,
-        private readonly ShopifyOauthTokenRepository $shopifyTokenRepository
+        private HttpClientInterface         $client,
+        private ShopifyOauthTokenRepository $shopifyTokenRepository,
+        private LoggerInterface             $factfinderLogger
     ) {}
 
     /**
      * Streamuje produkty partiami (GraphQL) — ~100 na zapytanie.
      * Zwraca generator, gdzie każdy yield to tablica produktów (nodes) z danej strony.
      */
-    public function streamProducts(string $shop): \Generator
+    public function streamProducts(string $shop, string $salesChannel, string $locale): \Generator
     {
         $shopifyToken = $this->shopifyTokenRepository->findOneBy(['shopDomain' => $shop]);
 
@@ -38,17 +40,25 @@ class ShopifyService
                         'Content-Type' => 'application/json',
                     ],
                     'json' => [
-                        'query'     => $this->getGQL(),
-                        'variables' => ['first' => 100, 'after' => $cursor],
+                        'query'     => $this->getGQL($salesChannel),
+                        'variables' => ['first' => 250, 'after' => $cursor, 'locale' => $locale],
                     ],
                 ]);
 
                 $payload = $response->toArray();
+
             } catch (HttpExceptionInterface $e) {
                 if (in_array($e->getResponse()->getStatusCode(), [401, 403], true)) {
                     throw new \Exception('Access token is invalid or expired for shop: ' . $shop, 401);
                 }
+
                 throw new \Exception('Failed to fetch products: ' . $e->getMessage());
+            }
+
+            if (!empty($payload['errors'])) {
+                $this->factfinderLogger->error('GraphQL errors', ['error' => $payload['errors'][0]['message'] ?? 'unknown']);
+
+                throw new \Exception('GraphQL errors: ' . json_encode($payload['errors']));
             }
 
             $productsConnection = $payload['data']['products'] ?? null;
@@ -70,16 +80,17 @@ class ShopifyService
         } while ($hasNext && $cursor);
     }
 
-    public function getGQL() : string
+    public function getGQL($publicationId) : string
     {
-        return <<<'GQL'
-query Products($first: Int!, $after: String) {
-  products(first: $first, after: $after, query: "status:ACTIVE") {
+        $query = sprintf('
+query Products($first: Int!, $after: String, $locale: String!) {
+  products(first: $first, after: $after, query: "status:active, publication_ids:%s") {
     pageInfo { hasNextPage endCursor }
     edges {
       node {
         id
         legacyResourceId
+        translations(locale:$locale){key value}
         title
         vendor
         handle
@@ -91,6 +102,7 @@ query Products($first: Int!, $after: String) {
           edges {
             node {
               id
+              translations(locale: $locale) { key value }
               legacyResourceId
               title
               price 
@@ -101,7 +113,8 @@ query Products($first: Int!, $after: String) {
       }
     }
   }
-}
-GQL;
+}', $publicationId);
+
+        return $query;
     }
 }

@@ -35,7 +35,7 @@ final readonly class ShopifyExportProductsHandler
         }
 
         try {
-            $tempFile = $this->factFinderExporter->export($shop);
+            $tempFile = $this->factFinderExporter->export($shop, $message->getSalesChannelId(), $message->getLocale());
 
             if (filesize($tempFile) < 1000) {
                 $this->factfinderLogger->error('Exported file too small, problem with product export', ['shop' => $shop, 'filesize' => filesize($tempFile)]);

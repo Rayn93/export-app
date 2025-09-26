@@ -264,12 +264,6 @@
                     {# Action Buttons #}
                     <div class="Polaris-Card">
                         <div class="Polaris-Card__Section">
-                            <form action="{{ path('shopify_export_products', app.request.query.all) }}" method="post" style="display: inline-block">
-                                <button type="submit" class="Polaris-Button Polaris-Button--primary Polaris-Button--sizeLarge">
-                                    Export Products
-                                </button>
-                            </form>
-
                             <form action="{{ path('shopify_test_ftp_connection', app.request.query.all) }}" method="post" style="display: inline-block;">
                                 <button id="test-ftp-connection-btn" class="Polaris-Button Polaris-Button--primary Polaris-Button--sizeLarge" type="submit" style="width: 175px;">
                                     <span class="Polaris-Button__Text">Test FTP connection</span>
@@ -280,6 +274,40 @@
                                 <button id="test-api-connection-btn" class="Polaris-Button Polaris-Button--primary Polaris-Button--sizeLarge" type="submit" style="width: 192px;">
                                     <span class="Polaris-Button__Text">Test Import connection</span>
                                 </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    {# Export form #}
+                    <div class="Polaris-Card" style="margin-top:20px;">
+                        <div class="Polaris-Card__Section">
+                            <h2 class="Polaris-Heading">Products export</h2>
+                            <form action="{{ path('shopify_export_products', app.request.query.all) }}" method="post">
+                                <div class="Polaris-FormLayout">
+                                    <div class="Polaris-FormLayout__Item">
+                                        <label class="Polaris-Label__Text" for="sales_channel">Sales Channel</label>
+                                        <select id="sales_channel" name="sales_channel" class="Polaris-Select" style="display:block;margin-top:6px;padding:5px;width:100%;">
+                                            {% for key, channel in salesChannels %}
+                                                <option value="{{ key }}">{{ channel }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <div class="Polaris-FormLayout__Item">
+                                        <label class="Polaris-Label__Text" for="locale">Language</label>
+                                        <select id="locale" name="locale" class="Polaris-Select" style="display:block;margin-top:6px;padding:5px;width:100%;">
+                                            {% for key, locale in languages %}
+                                                <option value="{{ key }}">{{ locale }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <div class="Polaris-FormLayout__Item">
+                                        <button type="submit" class="Polaris-Button Polaris-Button--primary Polaris-Button--sizeLarge">
+                                            Export Data Feed
+                                        </button>
+                                    </div>
+                                </div>
                             </form>
                         </div>
                     </div>

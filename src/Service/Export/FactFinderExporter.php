@@ -3,21 +3,21 @@ declare(strict_types=1);
 
 namespace App\Service\Export;
 
-use App\Service\ShopifyService;
+use App\Service\Shopify\ShopifyExportService;
 use App\Service\ShopifyToFactFinderProductMapper;
 
 class FactFinderExporter
 {
     public function __construct(
-        private readonly ShopifyService           $shopifyService,
-        private readonly ShopifyToFactFinderProductMapper  $mapper,
+        private readonly ShopifyExportService $shopifyService,
+        private readonly ShopifyToFactFinderProductMapper $mapper,
         private readonly string $kernelProjectDir
     ) {
     }
 
-    public function export(string $shopDomain): string
+    public function export(string $shopDomain, string $salesChannel, string $locale): string
     {
-        $filename   = $this->createFilename($shopDomain);
+        $filename   = $this->createFilename($shopDomain, $locale);
         $file = fopen($filename, 'w+');
 
         // Nagłówki CSV
@@ -35,7 +35,7 @@ class FactFinderExporter
         ], ';');
 
         // Strumieniowe pobieranie i mapowanie produktów
-        foreach ($this->shopifyService->streamProducts($shopDomain) as $batch) {
+        foreach ($this->shopifyService->streamProducts($shopDomain, $salesChannel, $locale) as $batch) {
 
             foreach ($this->mapper->map($batch, $shopDomain) as $row) {
                 fputcsv($file, $row, ';');
@@ -47,7 +47,7 @@ class FactFinderExporter
         return $filename;
     }
 
-    private function createFilename($shopDomain): string
+    private function createFilename($shopDomain, $locale): string
     {
         $dir = $this->kernelProjectDir . '/var/factfinder';
 
@@ -59,6 +59,6 @@ class FactFinderExporter
             throw new \Exception('Directory ' . $dir . ' is not writable. Aborting');
         }
 
-        return $dir . DIRECTORY_SEPARATOR . 'shopify_products_' . $shopDomain . '.csv';
+        return sprintf('%s/shopify_products_%s_%s.csv', $dir, $shopDomain, $locale);
     }
 }

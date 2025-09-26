@@ -50,6 +50,7 @@ final readonly class ShopifyUninstallService
                 'shop' => $shopDomain,
                 'exception' => $e,
             ]);
+
             // rollback transaction to avoid partial deletes in DB
             try {
                 $this->em->rollback();

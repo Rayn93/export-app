@@ -6,6 +6,7 @@ namespace App\Controller;
 use App\Config\Enum\Protocol;
 use App\Entity\ShopifyAppConfig;
 use App\Repository\ShopifyAppConfigRepository;
+use App\Service\Shopify\ShopifyApiService;
 use App\Service\Utils\PasswordEncryptor;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,7 +19,8 @@ final class ShopifyConfigController extends AbstractController
     public function index(
         Request $request,
         ShopifyAppConfigRepository $appConfigRepository,
-        PasswordEncryptor $passwordEncryptor
+        PasswordEncryptor $passwordEncryptor,
+        ShopifyApiService $shopifyApiService,
     ): Response
     {
         $shop = $request->query->get('shop');
@@ -58,6 +60,8 @@ final class ShopifyConfigController extends AbstractController
             'shop' => $shop,
             'host' => $host,
             'shopify_client_id' => $this->getParameter('shopify_client_id'),
+            'salesChannels' => $shopifyApiService->getSalesChannels($shop),
+            'languages' => $shopifyApiService->getLanguages($shop),
             'config' => $shopifyAppConfig,
         ]);
     }
