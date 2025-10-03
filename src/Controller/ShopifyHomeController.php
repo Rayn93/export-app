@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Repository\ShopifyAppConfigRepository;
+use App\Repository\ShopifyOauthTokenRepository;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 final class ShopifyHomeController extends AbstractController
 {
-    public function __construct(private readonly ShopifyAppConfigRepository $shopifyAppConfigRepository)
+    public function __construct(private readonly ShopifyOauthTokenRepository $shopifyOauthTokenRepository, private readonly LoggerInterface $factfinderLogger)
     {
     }
 
@@ -24,12 +25,12 @@ final class ShopifyHomeController extends AbstractController
             return new Response('Missing shop parameter', 400);
         }
 
-        $shopifyConfig = $this->shopifyAppConfigRepository->findOneBy(['shopDomain' => $shopDomain]);
+        $tokenExist = (bool) $this->shopifyOauthTokenRepository->count(['shopDomain' => $shopDomain]);
 
-        if (!$shopifyConfig) {
-            return $this->redirectToRoute('shopify_install', $request->query->all());
-        } else {
+        if ($tokenExist) {
             return $this->redirectToRoute('shopify_config', $request->query->all());
+        } else {
+            return $this->redirectToRoute('shopify_install', $request->query->all());
         }
 
     }

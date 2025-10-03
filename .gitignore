@@ -9,4 +9,5 @@
 ###< symfony/framework-bundle ###
 
 .idea/
-/shopify-extensions/node_modules/
+/shopify-extensions
+/shopify-export-app-testing/fact-finder-export-testing
