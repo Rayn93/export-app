@@ -11,3 +11,7 @@
 .idea/
 /shopify-extensions
 /shopify-export-app-testing/fact-finder-export-testing
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###
