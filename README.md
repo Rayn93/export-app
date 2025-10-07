@@ -29,6 +29,8 @@ It provides an easy-to-use configuration screen inside your Shopify admin panel 
 The configuration page is divided into **3 main sections**:
 
 ### 1. Main Settings
+![main-settings.png](docs/main-settings.png)
+
 - **FactFinder Channel Name** - The name of the FactFinder channel where the exported feed will be uploaded (e.g., `store_channel_en`) (required)
 - **Notification Email** - An email address where you want to receive success or error notifications regarding product exports (optional)
 
@@ -36,6 +38,8 @@ The configuration page is divided into **3 main sections**:
 
 ### 2. Upload Settings
 Configure the connection to your FactFinder SFTP server.
+
+![upload-settings.png](docs/upload-settings.png)
 
 - **Protocol** - Choose the protocol for file upload (currently only **SFTP** is supported) (required)
 
@@ -52,6 +56,8 @@ Configure the connection to your FactFinder SFTP server.
 ### 3. Import Settings
 Optional configuration if you want the app to automatically trigger a **FactFinder import** after each new CSV export.
 
+![import-settings.png](docs/import-settings.png)
+
 - **FactFinder Server URL** - The URL of your FactFinder import endpoint (e.g., `https://mydomain.fact-finder.de/fact-finder`) (optional)
 
 - **FactFinder Username** - The username used for authentication with the FactFinder import API (optional)
@@ -62,6 +68,8 @@ Optional configuration if you want the app to automatically trigger a **FactFind
 
 ### 4. Products Export
 This section lets you control how and what products will be exported.
+
+![export-form.png](docs/export-form.png)
 
 - **Sales Channel** - Select which Shopify sales channel you want to export products from (e.g., Online Store).
 
@@ -78,6 +86,8 @@ This section lets you control how and what products will be exported.
 
 ## 🔍 Buttons & Actions
 
+![action-buttons.png](docs/action-buttons.png)
+
 - **Save Configuration** - Saves all entered settings for future exports.
 
 - **Test FTP connection**  
@@ -89,15 +99,11 @@ This section lets you control how and what products will be exported.
   Verifies that your **FactFinder import endpoint** is reachable and the provided credentials are correct.
     - ✅ If successful: Confirms that FactFinder import API can be triggered.
     - ❌ If incorrect: You will receive an error message.
-
-- **Export Data Feed**  
-  Generates a new CSV product feed and uploads it to FactFinder. If **Import Settings** are configured, it will also trigger the import process automatically.
-
 ---
 
 ## ✅ Example Workflow
 
-1. Configure **Upload Settings** with your FactFinder SFTP details.
+1. Configure **Main Settings** and **Upload Settings** with your FactFinder account details.
 2. (Optional) Configure **Import Settings** if you want to trigger automatic imports.
 3. Click **Save Configuration**.
 4. Use **Test FTP connection** and **Test Import connection** to ensure your settings are correct.
@@ -110,7 +116,7 @@ This section lets you control how and what products will be exported.
 
 - Make sure your Shopify products are published to the correct sales channel and have translations configured.
 - Ensure your SFTP credentials provided by FactFinder are correct.
-- If translations are not available for the selected language, the app will export default (English) values.
+- If translations are not available for the selected language, the app will export default (main language) values.
 - If you uninstall the app in Shopify, we will automatically delete all the data you entered for configuration from our database.
 
 ---

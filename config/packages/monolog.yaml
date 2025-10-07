@@ -69,6 +69,6 @@ when@prod:
                 formatter: monolog.formatter.json
             factfinder:
                 type: stream
-                path: "%kernel.logs_dir%/%kernel.environment%.log"
-                level: error
+                path: "%kernel.logs_dir%/factfinder_%kernel.environment%.log"
+                level: info
                 channels: [ "factfinder" ]
