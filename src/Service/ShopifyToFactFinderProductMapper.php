@@ -9,20 +9,15 @@ final class ShopifyToFactFinderProductMapper
     {
         foreach ($shopifyProducts as $p) {
             $masterId     = (string) $p['legacyResourceId'];
-
-            // translacje produktu
             $title        = $this->getTranslatedValue($p['translations'] ?? [], 'title', $p['title'] ?? '');
             $description  = $this->getTranslatedValue($p['translations'] ?? [], 'body_html', $p['descriptionHtml'] ?? '');
             $brand        = $p['vendor'] ?? '';
-
             $deeplink     = $this->buildDeeplink($shopDomain, $p['handle'] ?? '', $p['onlineStoreUrl'] ?? null);
             $description  = trim(strip_tags($description));
             $imageUrl     = $p['images']['edges'][0]['node']['url'] ?? '';
             $categoryPath = $this->buildCategoryPathFromTaxonomy($p['category'] ?? null);
-
             $variantEdges = $p['variants']['edges'] ?? [];
             $variants     = array_map(static fn(array $e) => $e['node'], $variantEdges);
-
             $hasMultiple = count($variants) > 1;
             $masterPrice = isset($variants[0]['price']) ? (string)$variants[0]['price'] : '';
 
@@ -46,10 +41,7 @@ final class ShopifyToFactFinderProductMapper
             if ($hasMultiple) {
                 foreach ($variants as $v) {
                     $variantId = (string) $v['legacyResourceId'];
-
-                    // translacja wariantu (np. option1)
                     $vTitle    = $this->getTranslatedValue($v['translations'] ?? [], 'option1', $v['title'] ?? '');
-
                     $name      = trim($title . ' ' . ($vTitle !== 'Default Title' ? $vTitle : ''));
                     $price     = isset($v['price']) ? (string)$v['price'] : '';
 
@@ -77,6 +69,7 @@ final class ShopifyToFactFinderProductMapper
                 return $t['value'];
             }
         }
+
         return $fallback;
     }
 
@@ -98,14 +91,18 @@ final class ShopifyToFactFinderProductMapper
     private function buildMasterFilterAttributes(array $variants): string
     {
         $byName = [];
+
         foreach ($variants as $v) {
             foreach ($v['selectedOptions'] ?? [] as $opt) {
                 $name  = $opt['name']  ?? '';
                 $value = $opt['value'] ?? '';
+
                 if ($name === '' || $value === '' || ($name === 'Title' && $value === 'Default Title')) {
                     continue;
                 }
+
                 $byName[$name] ??= [];
+
                 if (!in_array($value, $byName[$name], true)) {
                     $byName[$name][] = $value;
                 }
@@ -113,6 +110,7 @@ final class ShopifyToFactFinderProductMapper
         }
 
         $pairs = [];
+
         foreach ($byName as $name => $values) {
             foreach ($values as $v) {
                 $pairs[] = "{$name}={$v}";
@@ -126,20 +124,23 @@ final class ShopifyToFactFinderProductMapper
     private function buildVariantFilterAttributes(array $selectedOptions): string
     {
         $pairs = [];
+
         foreach ($selectedOptions as $opt) {
             $name  = $opt['name']  ?? '';
             $value = $opt['value'] ?? '';
+
             if ($name === '' || $value === '' || ($name === 'Title' && $value === 'Default Title')) {
                 continue;
             }
+
             $pairs[] = "{$name}={$value}";
         }
+
         return $pairs ? '|' . implode('|', $pairs) . '|' : '';
     }
 
     private function buildDeeplink(string $shopDomain, string $handle, ?string $onlineStoreUrl): string
     {
-        // stabilny link do produktu
         return $handle ? "https://{$shopDomain}/products/{$handle}" : $onlineStoreUrl ?? '';
     }
 }
