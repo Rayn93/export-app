@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Service\Utils;
 
-final class PasswordEncryptor
+class PasswordEncryptor
 {
     private string $secretKey;
 

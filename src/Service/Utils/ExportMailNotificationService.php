@@ -6,7 +6,7 @@ namespace App\Service\Utils;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Psr\Log\LoggerInterface;
-final readonly class ExportMailNotificationService
+readonly class ExportMailNotificationService
 {
     public function __construct(
         private MailerInterface $mailer,

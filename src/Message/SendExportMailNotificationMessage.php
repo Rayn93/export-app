@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Message;
 
-final readonly class SendExportMailNotificationMessage
+readonly class SendExportMailNotificationMessage
 {
     public function __construct(private string $recipientEmail, private string $status)
     {}

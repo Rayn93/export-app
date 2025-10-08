@@ -9,7 +9,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
-final readonly class SendExportMailNotificationHandler
+readonly class SendExportMailNotificationHandler
 {
     public function __construct(
         private ExportMailNotificationService $notificationService,
