@@ -8,7 +8,7 @@ use App\Repository\ShopifyAppConfigRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
-final readonly class ShopifyUninstallService
+readonly class ShopifyUninstallService
 {
     public function __construct(
         private EntityManagerInterface      $em,
