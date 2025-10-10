@@ -72,6 +72,9 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "test": [
+            "vendor/bin/phpunit --configuration phpunit.dist.xml --colors=always"
         ]
     },
     "conflict": {
