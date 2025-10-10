@@ -6,7 +6,7 @@ namespace App\Service\Shopify;
 use App\Repository\ShopifyOauthTokenRepository;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-final readonly class ShopifyApiService
+readonly class ShopifyApiService
 {
     public function __construct(
         private HttpClientInterface $httpClient,

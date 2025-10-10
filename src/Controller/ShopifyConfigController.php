@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-final class ShopifyConfigController extends AbstractController
+class ShopifyConfigController extends AbstractController
 {
     #[Route('/shopify/config', name: 'shopify_config')]
     public function index(
