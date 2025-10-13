@@ -1,5 +1,7 @@
 # FactFinder Export App
 
+![CI](https://github.com/Rayn93/export-app/actions/workflows/ci.yml/badge.svg)
+
 The **FactFinder Export App** is a Shopify integration (in the future we are going to add more platforms) that allows you to export your product data directly to **FactFinder** in a format compatible with FactFinder search and recommendation engine.
 
 It provides an easy-to-use configuration screen inside your Shopify admin panel where you can manage connection settings, export options, and trigger product feed generation.

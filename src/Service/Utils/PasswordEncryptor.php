@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Service\Utils;
@@ -27,7 +28,7 @@ class PasswordEncryptor
             $iv
         );
 
-        if ($encrypted === false) {
+        if (false === $encrypted) {
             throw new \RuntimeException('Encryption failed');
         }
 
@@ -38,7 +39,7 @@ class PasswordEncryptor
     {
         $data = base64_decode($encryptedPassword, true);
 
-        if ($data === false || strlen($data) < 17) {
+        if (false === $data || strlen($data) < 17) {
             throw new \InvalidArgumentException('Invalid encrypted string');
         }
 
@@ -53,7 +54,7 @@ class PasswordEncryptor
             $iv
         );
 
-        if ($decrypted === false) {
+        if (false === $decrypted) {
             throw new \RuntimeException('Decryption failed');
         }
 
@@ -64,7 +65,7 @@ class PasswordEncryptor
     {
         $decoded = base64_decode($value, true);
 
-        if ($decoded === false || strlen($decoded) < 17) {
+        if (false === $decoded || strlen($decoded) < 17) {
             return false;
         }
 
@@ -79,6 +80,6 @@ class PasswordEncryptor
             $iv
         );
 
-        return $decrypted !== false;
+        return false !== $decrypted;
     }
 }

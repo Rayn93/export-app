@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controller;
@@ -31,6 +32,5 @@ class ShopifyHomeController extends AbstractController
         } else {
             return $this->redirectToRoute('shopify_install', $request->query->all());
         }
-
     }
 }

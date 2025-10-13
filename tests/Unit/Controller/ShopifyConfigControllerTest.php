@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Tests\Unit\Controller;
@@ -11,9 +12,9 @@ use App\Service\Shopify\ShopifyApiService;
 use App\Service\Utils\PasswordEncryptor;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 
 final class ShopifyConfigControllerTest extends TestCase
 {
@@ -54,10 +55,10 @@ final class ShopifyConfigControllerTest extends TestCase
             ->willReturn('client123');
 
         $this->controller->expects($this->once())->method('render')
-            ->with('shopify_config/index.html.twig', $this->callback(function ($context) use ($shopifyAppConfig) {
-                return $context['shop'] === 'test.myshopify.com'
-                    && $context['host'] === 'abc'
-                    && $context['shopify_client_id'] === 'client123'
+            ->with('shopify_config/index.html.twig', $this->callback(function ($context) {
+                return 'test.myshopify.com' === $context['shop']
+                    && 'abc' === $context['host']
+                    && 'client123' === $context['shopify_client_id']
                     && $context['salesChannels'] === ['web', 'store']
                     && $context['languages'] === ['en', 'pl']
                     && $context['config'] instanceof ShopifyAppConfig;
@@ -118,8 +119,14 @@ final class ShopifyConfigControllerTest extends TestCase
             ['ffpass', 'ENC(ffpass)'],
         ]);
 
-        $this->repository->expects($this->once())->method('save')->with($this->isInstanceOf(ShopifyAppConfig::class), true);
-        $this->controller->expects($this->once())->method('addFlash')->with('success', 'Configuration saved successfully!');
+        $this->repository->expects($this->once())->method('save')->with(
+            $this->isInstanceOf(ShopifyAppConfig::class),
+            true
+        );
+        $this->controller->expects($this->once())->method('addFlash')->with(
+            'success',
+            'Configuration saved successfully!'
+        );
         $this->controller->expects($this->once())->method('redirectToRoute')
             ->with('shopify_config', ['shop' => 'test.myshopify.com', 'host' => 'abc'])
             ->willReturn(new RedirectResponse('/shopify/config?shop=test.myshopify.com'));

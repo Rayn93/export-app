@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Service;
@@ -10,16 +11,20 @@ final class ShopifyToFactFinderProductMapper
         foreach ($shopifyProducts as $p) {
             $masterId     = (string) $p['legacyResourceId'];
             $title        = $this->getTranslatedValue($p['translations'] ?? [], 'title', $p['title'] ?? '');
-            $description  = $this->getTranslatedValue($p['translations'] ?? [], 'body_html', $p['descriptionHtml'] ?? '');
+            $description  = $this->getTranslatedValue(
+                $p['translations'] ?? [],
+                'body_html',
+                $p['descriptionHtml'] ?? ''
+            );
             $brand        = $p['vendor'] ?? '';
             $deeplink     = $this->buildDeeplink($shopDomain, $p['handle'] ?? '', $p['onlineStoreUrl'] ?? null);
             $description  = trim(strip_tags($description));
             $imageUrl     = $p['images']['edges'][0]['node']['url'] ?? '';
             $categoryPath = $this->buildCategoryPathFromTaxonomy($p['category'] ?? null);
             $variantEdges = $p['variants']['edges'] ?? [];
-            $variants     = array_map(static fn(array $e) => $e['node'], $variantEdges);
+            $variants     = array_map(static fn (array $e) => $e['node'], $variantEdges);
             $hasMultiple = count($variants) > 1;
-            $masterPrice = isset($variants[0]['price']) ? (string)$variants[0]['price'] : '';
+            $masterPrice = isset($variants[0]['price']) ? (string) $variants[0]['price'] : '';
 
             // master produkt
             $masterRow = [
@@ -42,8 +47,8 @@ final class ShopifyToFactFinderProductMapper
                 foreach ($variants as $v) {
                     $variantId = (string) $v['legacyResourceId'];
                     $vTitle    = $this->getTranslatedValue($v['translations'] ?? [], 'option1', $v['title'] ?? '');
-                    $name      = trim($title . ' ' . ($vTitle !== 'Default Title' ? $vTitle : ''));
-                    $price     = isset($v['price']) ? (string)$v['price'] : '';
+                    $name      = trim($title . ' ' . ('Default Title' !== $vTitle ? $vTitle : ''));
+                    $price     = isset($v['price']) ? (string) $v['price'] : '';
 
                     yield [
                         'ProductNumber'    => $variantId,
@@ -77,7 +82,7 @@ final class ShopifyToFactFinderProductMapper
     {
         $fullName = $category['fullName'] ?? '';
 
-        if ($fullName === '') {
+        if ('' === $fullName) {
             return 'Uncategorized';
         }
 
@@ -97,7 +102,7 @@ final class ShopifyToFactFinderProductMapper
                 $name  = $opt['name']  ?? '';
                 $value = $opt['value'] ?? '';
 
-                if ($name === '' || $value === '' || ($name === 'Title' && $value === 'Default Title')) {
+                if ('' === $name || '' === $value || ('Title' === $name && 'Default Title' === $value)) {
                     continue;
                 }
 
@@ -129,7 +134,7 @@ final class ShopifyToFactFinderProductMapper
             $name  = $opt['name']  ?? '';
             $value = $opt['value'] ?? '';
 
-            if ($name === '' || $value === '' || ($name === 'Title' && $value === 'Default Title')) {
+            if ('' === $name || '' === $value || ('Title' === $name && 'Default Title' === $value)) {
                 continue;
             }
 

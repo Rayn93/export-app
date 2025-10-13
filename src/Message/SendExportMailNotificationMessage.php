@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Message;
@@ -6,7 +7,8 @@ namespace App\Message;
 readonly class SendExportMailNotificationMessage
 {
     public function __construct(private string $recipientEmail, private string $status)
-    {}
+    {
+    }
 
     public function getRecipientEmail(): string
     {

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Tests\Unit\MessageHandler;
@@ -11,9 +12,9 @@ use App\Service\Export\FactFinderExporter;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\RuntimeException;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Envelope;
 
 final class ShopifyExportProductsHandlerTest extends TestCase
 {
@@ -54,7 +55,13 @@ final class ShopifyExportProductsHandlerTest extends TestCase
 
     public function testLogsErrorAndReturnsWhenConfigNotFound(): void
     {
-        $message = new ShopifyExportProductsMessage('testshop.myshopify.com', 999, 'salesChannel1', 'en', 'mail@test.com');
+        $message = new ShopifyExportProductsMessage(
+            'testshop.myshopify.com',
+            999,
+            'salesChannel1',
+            'en',
+            'mail@test.com'
+        );
         $this->configRepository->method('find')->with(999)->willReturn(null);
 
         $this->logger->expects($this->once())
@@ -79,7 +86,7 @@ final class ShopifyExportProductsHandlerTest extends TestCase
             ->with($this->callback(function (ShopifyUploadFileMessage $msg) use ($tempFile) {
                 return method_exists($msg, 'getTempFile') ? $msg->getTempFile() === $tempFile : true;
             }))
-            ->willReturnCallback(fn($message) => new Envelope($message));
+            ->willReturnCallback(fn ($message) => new Envelope($message));
 
         $this->logger->expects($this->once())
             ->method('info')
@@ -114,7 +121,10 @@ final class ShopifyExportProductsHandlerTest extends TestCase
         $this->assertCount(2, $calls);
         $this->assertSame('Exported file too small, problem with product export', $calls[0][0]);
         $this->assertArrayHasKey('shop', $calls[0][1]);
-        $this->assertStringContainsString('Export file cannot be created. Error: Exported file too small', $calls[1][0]);
+        $this->assertStringContainsString(
+            'Export file cannot be created. Error: Exported file too small',
+            $calls[1][0]
+        );
         $this->assertArrayHasKey('exception', $calls[1][1]);
     }
 

@@ -1,10 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Tests\Unit\MessageHandler;
 
-use App\MessageHandler\SendExportMailNotificationHandler;
 use App\Message\SendExportMailNotificationMessage;
+use App\MessageHandler\SendExportMailNotificationHandler;
 use App\Service\Utils\ExportMailNotificationService;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;

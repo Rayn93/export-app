@@ -1,21 +1,23 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Service\Shopify;
 
-use App\Repository\ShopifyOauthTokenRepository;
 use App\Repository\ShopifyAppConfigRepository;
+use App\Repository\ShopifyOauthTokenRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
 readonly class ShopifyUninstallService
 {
     public function __construct(
-        private EntityManagerInterface      $em,
+        private EntityManagerInterface $em,
         private ShopifyOauthTokenRepository $tokenRepository,
-        private ShopifyAppConfigRepository  $configRepository,
-        private LoggerInterface             $factfinderLogger,
-    ) {}
+        private ShopifyAppConfigRepository $configRepository,
+        private LoggerInterface $factfinderLogger,
+    ) {
+    }
 
     public function removeDataForShop(string $shopDomain): void
     {

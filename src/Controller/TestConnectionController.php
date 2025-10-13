@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controller;
@@ -13,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+
 class TestConnectionController extends AbstractController
 {
     public function __construct(private readonly ShopifyAppConfigRepository $shopifyAppConfigRepository)
@@ -20,8 +22,8 @@ class TestConnectionController extends AbstractController
     }
 
     #[Route('/shopify/config/test-ftp-connection', name: 'shopify_test_ftp_connection', methods: ['POST'])]
-    public function testFtpConnection(Request $request, UploadService $uploadService
-    ): Response {
+    public function testFtpConnection(Request $request, UploadService $uploadService): Response
+    {
         $shopifyAppConfig = $this->verifyShopifyRequestAndGetConfig($request);
 
         if ($shopifyAppConfig instanceof Response) {
@@ -33,18 +35,20 @@ class TestConnectionController extends AbstractController
         $success = $uploadService->uploadForShopifyConfig($shopifyAppConfig, $testFile, 'test_connection.txt');
 
         if ($success) {
-            $this->addFlash('success', "FTP/SFTP connection successful!");
+            $this->addFlash('success', 'FTP/SFTP connection successful!');
         } else {
-            $this->addFlash('error', "FTP/SFTP Connection failed. Please check your FTP/SFTP credentials and data.");
+            $this->addFlash('error', 'FTP/SFTP Connection failed. Please check your FTP/SFTP credentials and data.');
         }
 
         return $this->redirectToRoute('shopify_config', $request->query->all());
     }
 
     #[Route('/shopify/config/test-api-connection', name: 'shopify_test_api_connection', methods: ['POST'])]
-
-    public function testApiConnection(Request $request, ClientBuilder $clientBuilder, PasswordEncryptor $passwordEncryptor): Response
-    {
+    public function testApiConnection(
+        Request $request,
+        ClientBuilder $clientBuilder,
+        PasswordEncryptor $passwordEncryptor,
+    ): Response {
         $shopifyAppConfig = $this->verifyShopifyRequestAndGetConfig($request);
 
         if ($shopifyAppConfig instanceof Response) {
@@ -66,12 +70,12 @@ class TestConnectionController extends AbstractController
 
                 $endpoint = "rest/v5/records/{$channelName}/compare";
                 $client->request('GET', $endpoint);
-                $this->addFlash('success', "API Import connection successful!");
+                $this->addFlash('success', 'API Import connection successful!');
             } catch (\Exception $e) {
-                $this->addFlash('error', "API Import credentials invalid");
+                $this->addFlash('error', 'API Import credentials invalid');
             }
         } else {
-            $this->addFlash('error', "Please provide API Import credentials to test the connection.");
+            $this->addFlash('error', 'Please provide API Import credentials to test the connection.');
         }
 
         return $this->redirectToRoute('shopify_config', $request->query->all());

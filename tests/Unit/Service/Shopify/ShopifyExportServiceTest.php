@@ -1,10 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Tests\Unit\Service\Shopify;
 
-use App\Service\Shopify\ShopifyExportService;
 use App\Repository\ShopifyOauthTokenRepository;
+use App\Service\Shopify\ShopifyExportService;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -40,7 +41,12 @@ class ShopifyExportServiceTest extends TestCase
         ]);
 
         $this->client->method('request')->willReturn($mockResponse);
-        $token = new class {public function getAccessToken() { return 'abc123'; }};
+        $token = new class () {
+            public function getAccessToken()
+            {
+                return 'abc123';
+            }
+        };
         $this->tokenRepo->method('findOneBy')->willReturn($token);
         $batches = iterator_to_array($this->service->streamProducts('shop.myshopify.com', '12345', 'en'));
         $this->assertCount(1, $batches);

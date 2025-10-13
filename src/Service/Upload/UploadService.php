@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Service\Upload;
@@ -17,18 +18,19 @@ class UploadService
     public function __construct(private PasswordEncryptor $passwordEncryptor)
     {
     }
+
     public function uploadForShopifyConfig(ShopifyAppConfig $shopifyConfig, string $file, string $filename): bool
     {
-       return $this->uploadFile(
-                $file,
-                $filename,
-                $shopifyConfig->getServerUrl(),
-                $shopifyConfig->getUsername(),
-                trim($shopifyConfig->getPrivateKeyContent()),
-                $shopifyConfig->getKeyPassphrase(),
-                $shopifyConfig->getPort() ?: 21,
-                $shopifyConfig->getRootDirectory() ?: '/',
-                $shopifyConfig->getProtocol() === Protocol::SFTP
+        return $this->uploadFile(
+            $file,
+            $filename,
+            $shopifyConfig->getServerUrl(),
+            $shopifyConfig->getUsername(),
+            trim($shopifyConfig->getPrivateKeyContent()),
+            $shopifyConfig->getKeyPassphrase(),
+            $shopifyConfig->getPort() ?: 21,
+            $shopifyConfig->getRootDirectory() ?: '/',
+            Protocol::SFTP === $shopifyConfig->getProtocol()
         );
     }
 
@@ -41,7 +43,7 @@ class UploadService
         string $passphrase,
         int $port,
         string $path,
-        bool $useSftp
+        bool $useSftp,
     ): bool {
 
         try {
@@ -73,7 +75,7 @@ class UploadService
             $filesystem = new Filesystem($adapter);
             $stream = fopen($localFilePath, 'r');
 
-            if ($stream === false) {
+            if (false === $stream) {
                 throw new \RuntimeException("Could not create a file in: $localFilePath");
             }
 

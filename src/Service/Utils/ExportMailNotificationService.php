@@ -1,28 +1,31 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Service\Utils;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
-use Psr\Log\LoggerInterface;
+
 readonly class ExportMailNotificationService
 {
     public function __construct(
         private MailerInterface $mailer,
         private LoggerInterface $logger,
-    ) {}
+    ) {
+    }
 
     public function notifySuccess(string $recipient): void
     {
-        $subject = "[FactFinder] Export completed successfully";
+        $subject = '[FactFinder] Export completed successfully';
         $body = $this->getSuccessBodyMessage();
         $this->send($recipient, $subject, $body);
     }
 
     public function notifyFailure(string $recipient): void
     {
-        $subject = "[FactFinder] Export failed";
+        $subject = '[FactFinder] Export failed';
         $body = $this->getFailureBodyMessage();
         $this->send($recipient, $subject, $body);
     }

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Service\Shopify;
@@ -10,8 +11,9 @@ readonly class ShopifyApiService
 {
     public function __construct(
         private HttpClientInterface $httpClient,
-        private ShopifyOauthTokenRepository $shopifyTokenRepository
-    ) {}
+        private ShopifyOauthTokenRepository $shopifyTokenRepository,
+    ) {
+    }
 
     public function getSalesChannels(string $shop): array
     {
@@ -81,7 +83,6 @@ readonly class ShopifyApiService
 
         return $data['data'] ?? [];
     }
-
 
     private function getAccessToken(string $shop): ?string
     {

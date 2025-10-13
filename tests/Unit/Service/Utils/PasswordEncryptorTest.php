@@ -1,12 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Tests\Unit\Service\Utils;
 
 use App\Service\Utils\PasswordEncryptor;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 
 final class PasswordEncryptorTest extends TestCase
 {
@@ -47,14 +46,14 @@ final class PasswordEncryptorTest extends TestCase
 
     public function testDecryptThrowsOnInvalidBase64(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid encrypted string');
         $this->encryptor->decrypt('@@not-valid-base64@@');
     }
 
     public function testDecryptThrowsOnTooShortData(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid encrypted string');
         $shortBase64 = base64_encode('short');
         $this->encryptor->decrypt($shortBase64);
@@ -65,20 +64,20 @@ final class PasswordEncryptorTest extends TestCase
         $plain = 'Sensitive';
         $encrypted = $this->encryptor->encrypt($plain);
         $differentEncryptor = new PasswordEncryptor('different-key');
-        $this->expectException(RuntimeException::class);
+        $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Decryption failed');
         $differentEncryptor->decrypt($encrypted);
     }
 
     public function testEncryptThrowsWhenOpenSslFails(): void
     {
-        $encryptor = new class('secret') extends PasswordEncryptor {
+        $encryptor = new class ('secret') extends PasswordEncryptor {
             public function encrypt(string $plainPassword): string
             {
                 $iv = random_bytes(16);
                 $encrypted = false;
 
-                if ($encrypted === false) {
+                if (false === $encrypted) {
                     throw new \RuntimeException('Encryption failed');
                 }
 
@@ -86,7 +85,7 @@ final class PasswordEncryptorTest extends TestCase
             }
         };
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Encryption failed');
         $encryptor->encrypt('test');
     }

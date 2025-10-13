@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controller;
@@ -14,7 +15,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ExportController extends AbstractController
 {
-    public function __construct(private readonly LoggerInterface $factfinderLogger) {
+    public function __construct(private readonly LoggerInterface $factfinderLogger)
+    {
     }
 
     #[Route('/shopify/export/products/', name: 'shopify_export_products', methods: ['POST'])]

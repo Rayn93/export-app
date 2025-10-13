@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\MessageHandler;
@@ -19,7 +20,8 @@ final readonly class ShopifyPushImportHandler
         private PushImportService $pushImportService,
         private MessageBusInterface $bus,
         private LoggerInterface $factfinderLogger,
-    ) {}
+    ) {
+    }
 
     public function __invoke(ShopifyPushImportMessage $message): void
     {
@@ -28,7 +30,10 @@ final readonly class ShopifyPushImportHandler
         $config = $this->shopifyAppConfigRepository->find($configId);
 
         if (!$config) {
-            $this->factfinderLogger->error("PushImport: shopify config not found for id {$configId}", ['shop' => $shop]);
+            $this->factfinderLogger->error(
+                "PushImport: shopify config not found for id {$configId}",
+                ['shop' => $shop]
+            );
 
             return;
         }
@@ -36,7 +41,9 @@ final readonly class ShopifyPushImportHandler
         try {
             $this->pushImportService->execute($config);
             $this->factfinderLogger->info('Push import executed successfully', ['shop' => $shop]);
-            $this->bus->dispatch(new SendExportMailNotificationMessage($message->getMailForFailureNotification(),'success'));
+            $this->bus->dispatch(
+                new SendExportMailNotificationMessage($message->getMailForFailureNotification(), 'success')
+            );
         } catch (\Throwable $e) {
             $this->factfinderLogger->error('Push import failed: ' . $e->getMessage(), [
                 'shop' => $shop,

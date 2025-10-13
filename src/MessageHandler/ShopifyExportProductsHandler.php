@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\MessageHandler;
@@ -20,7 +21,8 @@ final readonly class ShopifyExportProductsHandler
         private FactFinderExporter $factFinderExporter,
         private MessageBusInterface $bus,
         private LoggerInterface $factfinderLogger,
-    ) {}
+    ) {
+    }
 
     public function __invoke(ShopifyExportProductsMessage $message): void
     {
@@ -38,12 +40,17 @@ final readonly class ShopifyExportProductsHandler
             $tempFile = $this->factFinderExporter->export($shop, $message->getSalesChannelId(), $message->getLocale());
 
             if (filesize($tempFile) < 1000) {
-                $this->factfinderLogger->error('Exported file too small, problem with product export', ['shop' => $shop, 'filesize' => filesize($tempFile)]);
+                $this->factfinderLogger->error(
+                    'Exported file too small, problem with product export',
+                    ['shop' => $shop, 'filesize' => filesize($tempFile)]
+                );
 
                 throw new RuntimeException('Exported file too small, problem with product export');
             }
 
-            $this->bus->dispatch(new ShopifyUploadFileMessage($shop, $configId, $tempFile, $message->getMailForFailureNotification()));
+            $this->bus->dispatch(
+                new ShopifyUploadFileMessage($shop, $configId, $tempFile, $message->getMailForFailureNotification())
+            );
             $this->factfinderLogger->info('Shopify export file created successfully', ['shop' => $shop]);
         } catch (\Throwable $e) {
             $this->factfinderLogger->error('Export file cannot be created. Error: ' . $e->getMessage(), [

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Tests\Unit\Controller;
@@ -33,7 +34,7 @@ class ExportControllerTest extends TestCase
         $this->router = $this->createMock(RouterInterface::class);
         $this->session = new Session(new MockArraySessionStorage());
         $this->controller = new ExportController($this->logger);
-        $container = new class($this->router, $this->session) implements ContainerInterface {
+        $container = new class ($this->router, $this->session) implements ContainerInterface {
             private RouterInterface $router;
             private Session $session;
 

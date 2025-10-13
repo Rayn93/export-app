@@ -74,6 +74,7 @@
             "@auto-scripts"
         ],
         "test": [
+            "vendor/bin/php-cs-fixer fix --dry-run --diff",
             "vendor/bin/phpunit --configuration phpunit.dist.xml --colors=always"
         ]
     },
@@ -87,7 +88,9 @@
         }
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.88",
         "phpunit/phpunit": "^11.5",
+        "squizlabs/php_codesniffer": "^4.0",
         "symfony/browser-kit": "7.3.*",
         "symfony/css-selector": "7.3.*",
         "symfony/maker-bundle": "^1.62",
