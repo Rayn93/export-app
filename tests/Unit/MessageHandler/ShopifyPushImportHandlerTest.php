@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Tests\Unit\MessageHandler;
@@ -12,8 +13,8 @@ use App\Service\Communication\PushImportService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 final class ShopifyPushImportHandlerTest extends TestCase
 {
@@ -64,10 +65,10 @@ final class ShopifyPushImportHandlerTest extends TestCase
         $this->bus->expects($this->once())
             ->method('dispatch')
             ->with($this->callback(function (SendExportMailNotificationMessage $msg) {
-                return $msg->getRecipientEmail() === 'success@test.com'
-                    && $msg->getStatus() === 'success';
+                return 'success@test.com' === $msg->getRecipientEmail()
+                    && 'success' === $msg->getStatus();
             }))
-            ->willReturnCallback(fn($m) => new Envelope($m));
+            ->willReturnCallback(fn ($m) => new Envelope($m));
 
         ($this->handler)($message);
     }
@@ -100,10 +101,10 @@ final class ShopifyPushImportHandlerTest extends TestCase
             ->method('dispatch')
             ->with($this->callback(function ($msg) {
                 return $msg instanceof SendExportMailNotificationMessage
-                    && $msg->getRecipientEmail() === 'notify@me.com'
-                    && $msg->getStatus() === 'success';
+                    && 'notify@me.com' === $msg->getRecipientEmail()
+                    && 'success' === $msg->getStatus();
             }))
-            ->willReturnCallback(fn($m) => new Envelope($m));
+            ->willReturnCallback(fn ($m) => new Envelope($m));
 
         ($this->handler)($message);
     }

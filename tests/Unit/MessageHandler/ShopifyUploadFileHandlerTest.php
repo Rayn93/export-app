@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Tests\Unit\MessageHandler;
@@ -12,9 +13,9 @@ use App\Service\Upload\UploadService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\RuntimeException;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 final class ShopifyUploadFileHandlerTest extends TestCase
 {
@@ -72,11 +73,11 @@ final class ShopifyUploadFileHandlerTest extends TestCase
         $this->bus->expects($this->once())
             ->method('dispatch')
             ->with($this->callback(function (ShopifyPushImportMessage $msg) {
-                return $msg->getShopDomain() === 'okshop.myshopify.com'
-                    && $msg->getShopifyAppConfigId() === 7
-                    && $msg->getMailForFailureNotification() === 'notify@ok.com';
+                return 'okshop.myshopify.com' === $msg->getShopDomain()
+                    && 7 === $msg->getShopifyAppConfigId()
+                    && 'notify@ok.com' === $msg->getMailForFailureNotification();
             }))
-            ->willReturnCallback(fn($m) => new Envelope($m));
+            ->willReturnCallback(fn ($m) => new Envelope($m));
 
         ($this->handler)($message);
     }
@@ -125,11 +126,11 @@ final class ShopifyUploadFileHandlerTest extends TestCase
             ->method('dispatch')
             ->with($this->callback(function (ShopifyPushImportMessage $msg) {
                 return $msg instanceof ShopifyPushImportMessage
-                    && $msg->getShopDomain() === 'detailshop.myshopify.com'
-                    && $msg->getShopifyAppConfigId() === 12
-                    && $msg->getMailForFailureNotification() === 'user@shop.com';
+                    && 'detailshop.myshopify.com' === $msg->getShopDomain()
+                    && 12 === $msg->getShopifyAppConfigId()
+                    && 'user@shop.com' === $msg->getMailForFailureNotification();
             }))
-            ->willReturnCallback(fn($m) => new Envelope($m));
+            ->willReturnCallback(fn ($m) => new Envelope($m));
 
         ($this->handler)($message);
     }

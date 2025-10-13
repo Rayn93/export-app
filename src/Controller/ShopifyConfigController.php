@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controller;
@@ -21,8 +22,7 @@ class ShopifyConfigController extends AbstractController
         ShopifyAppConfigRepository $appConfigRepository,
         PasswordEncryptor $passwordEncryptor,
         ShopifyApiService $shopifyApiService,
-    ): Response
-    {
+    ): Response {
         $shop = $request->query->get('shop');
         $host = $request->query->get('host');
 
@@ -47,7 +47,9 @@ class ShopifyConfigController extends AbstractController
             $shopifyAppConfig->setFfChannelName($request->request->get('ff_channel_name'));
             $shopifyAppConfig->setFfApiServerUrl($request->request->get('ff_api_server_url'));
             $shopifyAppConfig->setFfApiUsername($request->request->get('ff_api_username'));
-            $shopifyAppConfig->setFfApiPassword(!empty($request->request->get('ff_api_password')) ? $passwordEncryptor->encrypt($request->request->get('ff_api_password')) : '');
+            $shopifyAppConfig->setFfApiPassword(!empty($request->request->get('ff_api_password'))
+                ? $passwordEncryptor->encrypt($request->request->get('ff_api_password'))
+                : '');
             $shopifyAppConfig->setNotificationEmail($request->request->get('notification_email'));
             $shopifyAppConfig->setUpdatedAt(new \DateTime());
             $appConfigRepository->save($shopifyAppConfig, true);

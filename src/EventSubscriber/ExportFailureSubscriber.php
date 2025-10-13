@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\EventSubscriber;
@@ -16,13 +17,14 @@ final readonly class ExportFailureSubscriber implements EventSubscriberInterface
 
     public function __construct(
         private MessageBusInterface $bus,
-        private LoggerInterface $factfinderLogger
-    ) {}
+        private LoggerInterface $factfinderLogger,
+    ) {
+    }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            WorkerMessageFailedEvent::class => ['onMessageFailed', 10]
+            WorkerMessageFailedEvent::class => ['onMessageFailed', 10],
         ];
     }
 

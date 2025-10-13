@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\EventSubscriber;
@@ -16,8 +17,9 @@ class ShopifyRequestValidationSubscriber implements EventSubscriberInterface
     ];
 
     public function __construct(
-        private readonly ShopifyRequestValidator $validator
-    ) {}
+        private readonly ShopifyRequestValidator $validator,
+    ) {
+    }
 
     public static function getSubscribedEvents(): array
     {

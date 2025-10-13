@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Message;
@@ -10,7 +11,7 @@ final readonly class ShopifyExportProductsMessage
         private int $shopifyAppConfigId,
         private string $salesChannelId,
         private string $locale,
-        private ?string $mailForFailureNotification
+        private ?string $mailForFailureNotification,
     ) {
     }
 

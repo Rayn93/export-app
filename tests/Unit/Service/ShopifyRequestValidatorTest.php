@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Tests\Unit\Service;
@@ -49,7 +50,7 @@ class ShopifyRequestValidatorTest extends TestCase
     {
         $initial = [
             'shop' => 'validshop.myshopify.com',
-            'param' => 'value'
+            'param' => 'value',
         ];
 
         $request = new Request($initial);

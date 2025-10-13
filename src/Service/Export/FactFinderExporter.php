@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Service\Export;
@@ -11,7 +12,7 @@ class FactFinderExporter
     public function __construct(
         private readonly ShopifyExportService $shopifyService,
         private readonly ShopifyToFactFinderProductMapper $mapper,
-        private readonly string $kernelProjectDir
+        private readonly string $kernelProjectDir,
     ) {
     }
 
@@ -31,12 +32,11 @@ class FactFinderExporter
             'Description',
             'ImageUrl',
             'Price',
-            'FilterAttributes'
+            'FilterAttributes',
         ], ';');
 
         // Strumieniowe pobieranie i mapowanie produktów
         foreach ($this->shopifyService->streamProducts($shopDomain, $salesChannel, $locale) as $batch) {
-
             foreach ($this->mapper->map($batch, $shopDomain) as $row) {
                 fputcsv($file, $row, ';');
             }

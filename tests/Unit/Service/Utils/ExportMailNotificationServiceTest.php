@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Tests\Unit\Service\Utils;
@@ -33,6 +34,7 @@ final class ExportMailNotificationServiceTest extends TestCase
                 $this->assertSame($recipient, $email->getTo()[0]->getAddress());
                 $this->assertSame('[FactFinder] Export completed successfully', $email->getSubject());
                 $this->assertStringContainsString('The product export process was successful.', $email->getTextBody());
+
                 return true;
             }));
 
@@ -53,9 +55,13 @@ final class ExportMailNotificationServiceTest extends TestCase
         $this->mailer
             ->expects($this->once())
             ->method('send')
-            ->with($this->callback(function (Email $email) use ($recipient) {
+            ->with($this->callback(function (Email $email) {
                 $this->assertSame('[FactFinder] Export failed', $email->getSubject());
-                $this->assertStringContainsString('export of products from your store to FactFinder failed', $email->getTextBody());
+                $this->assertStringContainsString(
+                    'export of products from your store to FactFinder failed',
+                    $email->getTextBody()
+                );
+
                 return true;
             }));
 
@@ -76,7 +82,8 @@ final class ExportMailNotificationServiceTest extends TestCase
         $this->mailer
             ->expects($this->once())
             ->method('send')
-            ->willThrowException(new class('Mailer failed') extends \Exception {});
+            ->willThrowException(new class ('Mailer failed') extends \Exception {
+            });
 
         $this->logger
             ->expects($this->once())

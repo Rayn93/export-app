@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Tests\Unit\EventSubscriber;
@@ -8,8 +9,8 @@ use App\Message\SendExportMailNotificationMessage;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\RedeliveryStamp;
 
@@ -35,7 +36,8 @@ final class ExportFailureSubscriberTest extends TestCase
 
     public function testDoesNothingIfMessageHasNoMailMethod(): void
     {
-        $message = new class() {};
+        $message = new class () {
+        };
         $envelope = new Envelope($message);
         $event = new WorkerMessageFailedEvent($envelope, 'transport', new \RuntimeException('test'));
         $this->bus->expects($this->never())->method('dispatch');
@@ -45,7 +47,7 @@ final class ExportFailureSubscriberTest extends TestCase
 
     public function testDoesNothingIfRetriesBelowMax(): void
     {
-        $message = new class() {
+        $message = new class () {
             public function getMailForFailureNotification(): string
             {
                 return 'test@example.com';
@@ -63,8 +65,11 @@ final class ExportFailureSubscriberTest extends TestCase
     public function testDispatchesNotificationWhenMaxRetriesReached(): void
     {
         $email = 'fail@example.com';
-        $message = new class($email) {
-            public function __construct(private string $email) {}
+        $message = new class ($email) {
+            public function __construct(private string $email)
+            {
+            }
+
             public function getMailForFailureNotification(): string
             {
                 return $this->email;
@@ -84,7 +89,7 @@ final class ExportFailureSubscriberTest extends TestCase
             ->expects($this->once())
             ->method('dispatch')
             ->with($this->callback(function (SendExportMailNotificationMessage $msg) use ($email) {
-                return $msg->getRecipientEmail() === $email && $msg->getStatus() === 'failure';
+                return $msg->getRecipientEmail() === $email && 'failure' === $msg->getStatus();
             }))
             ->willReturn(new Envelope(new \stdClass()));
 
@@ -93,7 +98,7 @@ final class ExportFailureSubscriberTest extends TestCase
 
     public function testDoesNothingIfNoRedeliveryStamp(): void
     {
-        $message = new class() {
+        $message = new class () {
             public function getMailForFailureNotification(): string
             {
                 return 'no-retry@example.com';

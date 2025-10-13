@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Tests\Functional\Controller;
@@ -6,9 +7,9 @@ namespace App\Tests\Functional\Controller;
 use App\Controller\ShopifyWebhookController;
 use App\Service\Shopify\ShopifyUninstallService;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Psr\Log\LoggerInterface;
 
 final class ShopifyWebhookControllerTest extends TestCase
 {

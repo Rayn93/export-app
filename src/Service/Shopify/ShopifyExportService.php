@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Service\Shopify;
@@ -11,10 +12,11 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 readonly class ShopifyExportService
 {
     public function __construct(
-        private HttpClientInterface         $client,
+        private HttpClientInterface $client,
         private ShopifyOauthTokenRepository $shopifyTokenRepository,
-        private LoggerInterface             $factfinderLogger
-    ) {}
+        private LoggerInterface $factfinderLogger,
+    ) {
+    }
 
     /**
      * Streamuje produkty partiami (GraphQL) — ~100 na zapytanie.
@@ -46,7 +48,6 @@ readonly class ShopifyExportService
                 ]);
 
                 $payload = $response->toArray();
-
             } catch (HttpExceptionInterface $e) {
                 if (in_array($e->getResponse()->getStatusCode(), [401, 403], true)) {
                     throw new \Exception('Access token is invalid or expired for shop: ' . $shop, 401);
@@ -56,7 +57,10 @@ readonly class ShopifyExportService
             }
 
             if (!empty($payload['errors'])) {
-                $this->factfinderLogger->error('GraphQL errors', ['error' => $payload['errors'][0]['message'] ?? 'unknown']);
+                $this->factfinderLogger->error(
+                    'GraphQL errors',
+                    ['error' => $payload['errors'][0]['message'] ?? 'unknown']
+                );
 
                 throw new \Exception('GraphQL errors: ' . json_encode($payload['errors']));
             }
@@ -68,19 +72,19 @@ readonly class ShopifyExportService
             }
 
             $edges = $productsConnection['edges'] ?? [];
-            $products = array_map(static fn(array $edge) => $edge['node'], $edges);
+            $products = array_map(static fn (array $edge) => $edge['node'], $edges);
 
             if ($products) {
                 yield $products;
             }
 
             $pageInfo = $productsConnection['pageInfo'] ?? [];
-            $hasNext  = (bool)($pageInfo['hasNextPage'] ?? false);
+            $hasNext  = (bool) ($pageInfo['hasNextPage'] ?? false);
             $cursor   = $pageInfo['endCursor'] ?? null;
         } while ($hasNext && $cursor);
     }
 
-    public function getGQL($publicationId) : string
+    public function getGQL($publicationId): string
     {
         $query = sprintf('
 query Products($first: Int!, $after: String, $locale: String!) {

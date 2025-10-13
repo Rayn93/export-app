@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Message;
@@ -9,7 +10,7 @@ final readonly class ShopifyUploadFileMessage
         private string $shopDomain,
         private int $shopifyAppConfigId,
         private string $filePath,
-        private ?string $mailForFailureNotification
+        private ?string $mailForFailureNotification,
     ) {
     }
 

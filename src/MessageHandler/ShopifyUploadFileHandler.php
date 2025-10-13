@@ -1,10 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\MessageHandler;
 
-use App\Message\ShopifyUploadFileMessage;
 use App\Message\ShopifyPushImportMessage;
+use App\Message\ShopifyUploadFileMessage;
 use App\Repository\ShopifyAppConfigRepository;
 use App\Service\Upload\UploadService;
 use Psr\Log\LoggerInterface;
@@ -20,7 +21,8 @@ final readonly class ShopifyUploadFileHandler
         private UploadService $uploadService,
         private MessageBusInterface $bus,
         private LoggerInterface $factfinderLogger,
-    ) {}
+    ) {
+    }
 
     public function __invoke(ShopifyUploadFileMessage $message): void
     {
@@ -44,8 +46,9 @@ final readonly class ShopifyUploadFileHandler
                     'shop' => $shop,
                     'filename' => $filename,
                 ]);
-                $this->bus->dispatch(new ShopifyPushImportMessage($shop, $configId, $message->getMailForFailureNotification()));
-
+                $this->bus->dispatch(
+                    new ShopifyPushImportMessage($shop, $configId, $message->getMailForFailureNotification())
+                );
             } else {
                 $this->factfinderLogger->error('Upload file failed', ['shop' => $shop]);
 

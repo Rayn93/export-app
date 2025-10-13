@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Service;
@@ -11,8 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 readonly class ShopifyRequestValidator
 {
     public function __construct(
-        private string          $clientSecret,
-        private string          $clientId,
+        private string $clientSecret,
+        private string $clientId,
         private LoggerInterface $factfinderLogger,
     ) {
     }

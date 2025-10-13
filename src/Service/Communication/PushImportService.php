@@ -13,7 +13,8 @@ use Omikron\FactFinder\Communication\Resource\NG\ImportAdapter;
 
 readonly class PushImportService
 {
-    const IMPORT_TYPES = ['search', 'recommendation', 'suggest'];
+    public const IMPORT_TYPES = ['search', 'recommendation', 'suggest'];
+
     public function __construct(private PasswordEncryptor $passwordEncryptor, private ClientBuilder $clientBuilder)
     {
     }

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Message;
@@ -8,7 +9,7 @@ final readonly class ShopifyPushImportMessage
     public function __construct(
         private string $shopDomain,
         private int $shopifyAppConfigId,
-        private ?string $mailForFailureNotification
+        private ?string $mailForFailureNotification,
     ) {
     }
 

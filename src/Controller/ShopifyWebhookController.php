@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controller;
@@ -15,8 +16,9 @@ final class ShopifyWebhookController extends AbstractController
     public function __construct(
         private readonly ShopifyUninstallService $uninstallService,
         private readonly LoggerInterface $factfinderLogger,
-        private readonly string $clientSecret
-    ) {}
+        private readonly string $clientSecret,
+    ) {
+    }
 
     #[Route('/shopify/webhooks/app/uninstalled', name: 'shopify_webhook_app_uninstalled', methods: ['POST'])]
     public function handleUninstall(Request $request): Response
@@ -27,7 +29,7 @@ final class ShopifyWebhookController extends AbstractController
 
         if (!$hmac || !$shop) {
             $this->factfinderLogger->warning('Shopify uninstall webhook missing required headers', [
-                'headers' => $request->headers->all()
+                'headers' => $request->headers->all(),
             ]);
 
             return new Response('Missing headers', Response::HTTP_BAD_REQUEST);

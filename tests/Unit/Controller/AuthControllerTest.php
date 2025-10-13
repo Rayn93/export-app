@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Tests\Unit\Controller;
@@ -51,7 +52,9 @@ class AuthControllerTest extends TestCase
         $this->logger->expects($this->exactly(2))->method('info');
         $this->controller->expects($this->once())
             ->method('redirect')
-            ->with($this->callback(fn($url) => str_contains($url, 'https://testshop.myshopify.com/admin/oauth/authorize')))
+            ->with($this->callback(
+                fn ($url) => str_contains($url, 'https://testshop.myshopify.com/admin/oauth/authorize')
+            ))
             ->willReturn(new RedirectResponse('https://auth-url'));
 
         $response = $this->controller->install($request, $session);

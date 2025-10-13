@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Tests\Unit\Service;
@@ -27,8 +28,8 @@ class ShopifyToFactFinderProductMapperTest extends TestCase
             'onlineStoreUrl' => null,
             'images' => [
                 'edges' => [
-                    ['node' => ['url' => 'https://cdn.example.com/img.jpg']]
-                ]
+                    ['node' => ['url' => 'https://cdn.example.com/img.jpg']],
+                ],
             ],
             'category' => null,
             'variants' => [
@@ -38,11 +39,11 @@ class ShopifyToFactFinderProductMapperTest extends TestCase
                         'title' => 'Default Title',
                         'price' => '10.00',
                         'selectedOptions' => [
-                            ['name' => 'Title', 'value' => 'Default Title']
+                            ['name' => 'Title', 'value' => 'Default Title'],
                         ],
-                        'translations' => []
-                    ]]
-                ]
+                        'translations' => [],
+                    ]],
+                ],
             ],
         ];
 
@@ -67,7 +68,7 @@ class ShopifyToFactFinderProductMapperTest extends TestCase
             'title' => 'Shirt',
             'translations' => [
                 ['key' => 'title', 'value' => 'Hemd'],
-                ['key' => 'body_html', 'value' => 'Beschreibung']
+                ['key' => 'body_html', 'value' => 'Beschreibung'],
             ],
             'descriptionHtml' => '<p>irrelevant</p>',
             'vendor' => 'BrandY',
@@ -75,8 +76,8 @@ class ShopifyToFactFinderProductMapperTest extends TestCase
             'onlineStoreUrl' => null,
             'images' => [
                 'edges' => [
-                    ['node' => ['url' => 'https://cdn.example.com/shirt.jpg']]
-                ]
+                    ['node' => ['url' => 'https://cdn.example.com/shirt.jpg']],
+                ],
             ],
             'category' => ['fullName' => 'Clothing > Tops'],
             'variants' => [
@@ -129,7 +130,7 @@ class ShopifyToFactFinderProductMapperTest extends TestCase
                             ['key' => 'option1', 'value' => 'Green'],
                         ],
                     ]],
-                ]
+                ],
             ],
         ];
 
