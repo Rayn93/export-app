@@ -1,7 +1,5 @@
 # FactFinder Export App
 
-![CI](https://github.com/Rayn93/export-app/actions/workflows/ci.yml/badge.svg)
-
 The **FactFinder Export App** is a Shopify integration (in the future we are going to add more platforms) that allows you to export your product data directly to **FactFinder** in a format compatible with FactFinder search and recommendation engine.
 
 It provides an easy-to-use configuration screen inside your Shopify admin panel where you can manage connection settings, export options, and trigger product feed generation.
@@ -113,6 +111,140 @@ This section lets you control how and what products will be exported.
 6. Click **Export Data Feed** to generate and upload your feed.
 
 ---
+
+# 🔄 Real-Time Product Synchronization (NEW)
+
+The **Real-Time Sync** feature allows your Shopify products to be synchronized with **FactFinder immediately** after they are created, updated, or deleted in Shopify — without waiting for a full CSV export.
+
+This ensures that your FactFinder search index always reflects the **latest product changes** in your store.
+
+---
+
+## ⚡ How Real-Time Sync Works
+
+When **Real-Time Sync** is enabled:
+
+- Shopify **webhooks** listen for product events:
+  - `product/create`
+  - `product/update`
+  - `product/delete`
+- Each event is queued and processed asynchronously.
+- Product data is fetched from Shopify via API.
+- Products and variants are **inserted, updated, or removed** in FactFinder using the **FactFinder Records API**.
+
+---
+
+## 🧩 Supported Actions
+
+| Shopify Event | FactFinder Action |
+|---------------|-------------------|
+| Product created | Insert product & variants |
+| Product updated | Upsert (update or add missing variants) |
+| Product deleted | Delete product & variants |
+
+---
+
+## ⚙️ Real-Time Sync Configuration
+
+Real-Time Sync can be configured per **FactFinder channel mapping**.
+
+Each mapping includes:
+
+- **FactFinder Channel**
+- **Sales Channel**
+- **Language**
+- **Real-Time Sync Enabled / Disabled**
+
+> 🔔 If Real-Time Sync is disabled, Shopify webhooks are **ignored** and no data is synchronized in real time.
+
+---
+
+## 🛡️ Smart Safety Mechanisms
+
+To protect your FactFinder system and avoid unwanted sync operations, the app includes several safeguards.
+
+### ✅ Product Status Validation
+
+Only products that are:
+
+- `status = active`
+- published to the selected **Sales Channel**
+
+are synchronized.
+
+Draft or unpublished products are automatically ignored.
+
+---
+
+### 🚦 Bulk Operation Detection
+
+Mass operations in Shopify (e.g. product imports, bulk edits) can trigger hundreds of webhooks.
+
+To prevent overload:
+
+- The app detects **bulk webhook activity**
+- Real-Time Sync is **temporarily paused**
+- Webhooks are acknowledged but **not processed**
+
+This ensures system stability and prevents unnecessary API calls.
+
+---
+
+### 🔁 Intelligent Error Handling & Retry System
+
+- Temporary errors (e.g. API timeouts, network issues, HTTP 5xx) are **automatically retried**
+- Permanent errors (e.g. invalid credentials, misconfiguration) are:
+  - Logged
+  - Stored in a dedicated error table
+  - Reported via **email notification** (if configured)
+
+After the maximum retry limit is exceeded, failed products are moved to a **sync error queue** for later inspection.
+
+---
+
+## 📬 Error Notifications
+
+If a real-time synchronization permanently fails:
+
+- An email notification is sent to the configured **Notification Email**
+- The message contains:
+  - Error description
+  - Reason for failure
+  - A suggestion to verify configuration settings
+
+---
+
+## 🔄 Real-Time Sync vs Manual Export
+
+| Feature | Manual Export | Real-Time Sync |
+|------|--------------|----------------|
+| Trigger | Manual button click | Automatic (webhooks) |
+| Data Format | CSV via SFTP | API (JSON) |
+| Best for | Full catalog rebuilds | Instant updates |
+| Error handling | Export summary email | Per-event retries & alerts |
+
+> 💡 Both methods can be used **together** for maximum reliability.
+
+---
+
+## 🧹 App Uninstall Behavior
+
+When the app is uninstalled from Shopify:
+
+- All configuration data is removed
+- Real-Time Sync webhooks stop automatically
+- No further product data is synchronized
+
+---
+
+## 📝 Notes & Best Practices
+
+- Real-Time Sync is recommended for **small to medium product changes**
+- For large catalog updates, use the **manual export**
+- Ensure your Shopify products are:
+  - Published
+  - Assigned to the correct Sales Channel
+- Verify your FactFinder API credentials before enabling Real-Time Sync
 
 ## 🔒 Notes
 
